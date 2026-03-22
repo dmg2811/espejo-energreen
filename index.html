@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Espejo del Bienestar · Energreen</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&family=Share+Tech+Mono&display=swap');
+
+:root{
+  --c:#00f5ff;--cd:#00b8c4;--g:#39ff14;--a:#ffb700;--r:#ff2d55;--p:#bf5fff;
+  --eg:#2d8a3e;--egl:#4ab85c;--egs:rgba(74,184,92,.15);
+  --bg:#020b12;--pan:rgba(0,245,255,.04);--b:rgba(0,245,255,.2);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--c);font-family:'Rajdhani',sans-serif;cursor:crosshair;overflow:hidden}
+
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(0,245,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,255,.02) 1px,transparent 1px);
+  background-size:44px 44px;pointer-events:none;z-index:0;animation:gp 8s ease-in-out infinite}
+@keyframes gp{0%,100%{opacity:.5}50%{opacity:1}}
+
+/* ══ APP SHELL — portrait column ══ */
+#app{position:fixed;inset:0;display:flex;flex-direction:column;z-index:5;overflow:hidden}
+
+/* ── HEADER ── */
+#hdr{display:flex;align-items:center;justify-content:space-between;
+  padding:0 clamp(10px,2vw,18px);flex-shrink:0;
+  height:clamp(44px,6vh,58px);
+  border-bottom:1px solid rgba(74,184,92,.3);
+  background:rgba(2,11,18,.96);backdrop-filter:blur(8px);z-index:10}
+.hbrand{display:flex;align-items:center;gap:8px;min-width:0}
+.hbrand svg{flex-shrink:0;width:clamp(18px,3vw,28px);height:clamp(18px,3vw,28px)}
+.htitle{font-family:'Orbitron',monospace;
+  font-size:clamp(.55rem,1.8vw,.88rem);font-weight:900;
+  letter-spacing:.12em;color:var(--egl);text-shadow:0 0 12px var(--egl);
+  animation:flicker 7s ease-in-out infinite;white-space:nowrap}
+@keyframes flicker{0%,100%{opacity:1}92%{opacity:1}93%{opacity:.4}94%{opacity:1}}
+.hsub{font-family:'Share Tech Mono',monospace;font-size:clamp(.36rem,1vw,.46rem);
+  letter-spacing:.14em;color:var(--cd);opacity:.65;white-space:nowrap}
+.hstat{display:flex;align-items:center;gap:clamp(6px,1.5vw,14px);
+  font-family:'Share Tech Mono',monospace;font-size:clamp(.42rem,1.2vw,.56rem);
+  letter-spacing:.1em;color:var(--cd);flex-shrink:0}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--egl);
+  display:inline-block;margin-right:4px;animation:blink 1.5s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.counter-badge{background:rgba(74,184,92,.12);border:1px solid rgba(74,184,92,.3);
+  border-radius:20px;padding:2px 10px;font-family:'Share Tech Mono',monospace;
+  font-size:clamp(.4rem,1vw,.54rem);color:var(--egl);white-space:nowrap}
+
+/* ══ MAIN BODY — portrait: 3 rows. landscape big screen: 3 cols ══ */
+#body{flex:1;min-height:0;display:grid;overflow:hidden;
+  /* portrait default */
+  grid-template-columns:1fr;
+  grid-template-rows:auto 1fr auto;
+  grid-template-areas:"top" "mid" "bot"}
+
+/* portrait: top = stats row, mid = camera, bot = result panel */
+#left  {grid-area:top}
+#center{grid-area:mid}
+#right {grid-area:bot}
+
+/* ── LEFT — stats row (portrait: horizontal strip) ── */
+#left{display:flex;flex-direction:row;gap:6px;padding:6px;
+  border-bottom:1px solid var(--b);overflow:hidden;flex-shrink:0}
+
+#left .card{flex:1;min-width:0;padding:6px}
+#left .card:last-child{display:none} /* hide radar on portrait small */
+
+.card{background:var(--pan);border:1px solid var(--b);border-radius:6px;
+  padding:8px;position:relative;overflow:hidden;flex-shrink:0}
+.card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--egl),transparent);animation:sl 3s linear infinite}
+@keyframes sl{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.clbl{font-family:'Orbitron',monospace;font-size:clamp(.38rem,1vw,.46rem);
+  letter-spacing:.2em;color:var(--egl);text-transform:uppercase;margin-bottom:4px;opacity:.85}
+
+.mrow{display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;
+  font-size:clamp(.42rem,1vw,.56rem);margin-bottom:2px}
+.ml{color:rgba(0,245,255,.5)}.mv{color:var(--g);font-weight:bold}
+.mbar{height:3px;background:rgba(0,245,255,.08);border-radius:2px;margin-bottom:3px;overflow:hidden}
+.mbf{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--egl),var(--g));
+  transition:width 1.2s cubic-bezier(.16,1,.3,1)}
+
+.erow{display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;
+  font-size:clamp(.4rem,.9vw,.54rem);padding:2px 0;border-bottom:1px solid rgba(0,245,255,.05)}
+.en{color:rgba(0,245,255,.6)}.ev2{color:var(--a)}
+
+/* ── CENTER — camera zone ── */
+#center{display:flex;flex-direction:column;align-items:stretch;
+  gap:6px;padding:6px;overflow:hidden;min-height:0}
+#mstatus{font-family:'Share Tech Mono',monospace;font-size:clamp(.42rem,1.1vw,.56rem);
+  color:var(--a);letter-spacing:.1em;text-align:center;
+  animation:tp 2s ease-in-out infinite;min-height:13px;flex-shrink:0}
+@keyframes tp{0%,100%{opacity:.4}50%{opacity:1}}
+
+#camWrap{position:relative;width:100%;flex:1;min-height:clamp(180px,35vh,400px)}
+#camInner{position:absolute;inset:0;background:#000;border-radius:6px;overflow:hidden}
+#camInner video,#camInner canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#camInner video{transform:scaleX(-1);filter:brightness(.9) contrast(1.05)}
+#camInner canvas{transform:scaleX(-1);pointer-events:none;z-index:2}
+
+.cr{position:absolute;width:18px;height:18px;z-index:10}
+.cr::before,.cr::after{content:'';position:absolute;background:var(--egl);box-shadow:0 0 5px var(--egl)}
+.cr::before{width:100%;height:2px;top:0;left:0}.cr::after{width:2px;height:100%;top:0;left:0}
+.cr-tl{top:0;left:0}.cr-tr{top:0;right:0;transform:scaleX(-1)}
+.cr-bl{bottom:0;left:0;transform:scaleY(-1)}.cr-br{bottom:0;right:0;transform:scale(-1,-1)}
+
+.sov{position:absolute;inset:0;pointer-events:none;z-index:5;overflow:hidden}
+.sline{position:absolute;left:0;right:0;height:2px;top:0;
+  background:linear-gradient(90deg,transparent,rgba(74,184,92,.6),rgba(57,255,20,.3),transparent);
+  filter:blur(1px);animation:sm 2.8s linear infinite}
+@keyframes sm{0%{top:0%;opacity:0}5%{opacity:1}95%{opacity:1}100%{top:100%;opacity:0}}
+.svig{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(2,11,18,.5) 100%)}
+
+.htag{position:absolute;z-index:8;font-family:'Share Tech Mono',monospace;
+  font-size:clamp(.32rem,.8vw,.44rem);color:var(--egl);letter-spacing:.08em;opacity:.65;pointer-events:none}
+.htag.tl{top:5px;left:10px}.htag.tr{top:5px;right:10px;text-align:right}
+.htag.bl{bottom:5px;left:10px}.htag.br{bottom:5px;right:10px;text-align:right}
+
+#noFace{font-family:'Share Tech Mono',monospace;font-size:clamp(.44rem,1.1vw,.55rem);
+  color:var(--a);letter-spacing:.1em;opacity:0;transition:opacity .4s;text-align:center;flex-shrink:0}
+#noFace.show{opacity:1}
+
+#scanBtn{font-family:'Orbitron',monospace;
+  font-size:clamp(.55rem,1.6vw,.75rem);font-weight:700;
+  letter-spacing:.15em;text-transform:uppercase;
+  padding:clamp(10px,1.8vh,16px) 0;width:100%;
+  background:transparent;border:2px solid var(--egl);color:var(--egl);
+  cursor:pointer;position:relative;overflow:hidden;transition:all .3s;flex-shrink:0;
+  box-shadow:0 0 12px rgba(74,184,92,.2);border-radius:6px;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#scanBtn::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(74,184,92,.18),transparent);
+  transform:translateX(-100%);transition:transform .5s}
+#scanBtn:hover,#scanBtn:active{box-shadow:0 0 22px rgba(74,184,92,.5);color:#fff}
+#scanBtn:hover::before{transform:translateX(100%)}
+#scanBtn:disabled{opacity:.3;cursor:not-allowed}
+
+/* ── RIGHT — result panel ── */
+#right{display:flex;flex-direction:column;gap:6px;padding:6px;
+  overflow-y:auto;overflow-x:hidden;border-top:1px solid var(--b);
+  max-height:45vh;-webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;scrollbar-color:rgba(74,184,92,.3) transparent}
+#right::-webkit-scrollbar{width:3px}
+#right::-webkit-scrollbar-track{background:transparent}
+#right::-webkit-scrollbar-thumb{background:rgba(74,184,92,.35);border-radius:3px}
+
+/* ── RIGHT — IDLE ── */
+#rIdle{display:flex;flex-direction:row;align-items:center;flex:1;gap:10px;padding:4px}
+.idle-logo{font-size:clamp(1.4rem,4vw,2.2rem);animation:pls 3s ease-in-out infinite;flex-shrink:0}
+@keyframes pls{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.idle-txt{font-family:'Share Tech Mono',monospace;font-size:clamp(.44rem,1.1vw,.54rem);
+  letter-spacing:.12em;line-height:1.8;color:rgba(74,184,92,.5)}
+.idle-modes{display:none}
+.idle-mode-card{background:rgba(74,184,92,.06);border:1px solid rgba(74,184,92,.2);border-radius:5px;padding:7px 10px}
+.imc-title{font-family:'Orbitron',monospace;font-size:clamp(.42rem,1vw,.5rem);color:var(--egl);letter-spacing:.1em;margin-bottom:3px}
+.imc-desc{font-size:clamp(.52rem,1.1vw,.6rem);color:rgba(255,255,255,.45);line-height:1.4}
+
+/* ── RIGHT — LOADING ── */
+#rLoading{display:none;flex-direction:row;align-items:center;justify-content:center;flex:1;gap:12px}
+.ring{width:36px;height:36px;border-radius:50%;border:3px solid rgba(74,184,92,.12);
+  border-top-color:var(--egl);border-right-color:var(--g);
+  animation:spin 1s linear infinite;filter:drop-shadow(0 0 6px var(--egl));flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loadTxt{font-family:'Share Tech Mono',monospace;font-size:clamp(.44rem,1vw,.56rem);
+  letter-spacing:.1em;color:var(--cd);animation:tp 1.5s ease-in-out infinite}
+
+/* ── RIGHT — QUESTIONS ── */
+#rQuestions{display:none;flex-direction:column;gap:6px;flex:1}
+.q-header{font-family:'Orbitron',monospace;font-size:clamp(.38rem,.9vw,.5rem);
+  letter-spacing:.2em;color:var(--egl);text-align:center;padding:2px 0}
+.q-progress{display:flex;gap:4px;justify-content:center;margin-bottom:2px}
+.q-dot{width:8px;height:8px;border-radius:50%;border:1px solid var(--egl);transition:background .3s}
+.q-dot.done{background:var(--egl)}.q-dot.current{background:rgba(74,184,92,.4)}
+.q-card{background:rgba(74,184,92,.06);border:1px solid rgba(74,184,92,.25);border-radius:6px;padding:8px}
+.q-text{font-family:'Rajdhani',sans-serif;font-size:clamp(.75rem,1.8vw,.88rem);
+  font-weight:600;color:#e0f7fa;line-height:1.4;margin-bottom:8px;text-align:center}
+.q-options{display:flex;flex-direction:column;gap:4px}
+.q-btn{font-family:'Rajdhani',sans-serif;font-size:clamp(.68rem,1.5vw,.78rem);font-weight:600;
+  padding:7px 10px;background:rgba(0,245,255,.05);border:1px solid rgba(0,245,255,.2);
+  color:var(--c);cursor:pointer;border-radius:4px;transition:all .25s;text-align:left;
+  -webkit-tap-highlight-color:transparent}
+.q-btn:hover,.q-btn:active{background:rgba(74,184,92,.15);border-color:var(--egl);color:#fff}
+.q-btn.selected{background:rgba(74,184,92,.2);border-color:var(--egl);color:var(--egl)}
+.q-profile-badge{text-align:center;padding:6px;background:rgba(74,184,92,.08);
+  border:1px solid rgba(74,184,92,.2);border-radius:6px}
+.q-profile-name{font-family:'Orbitron',monospace;font-size:clamp(.5rem,1.2vw,.65rem);
+  font-weight:700;color:var(--egl);letter-spacing:.1em}
+.q-profile-sub{font-size:clamp(.5rem,1.1vw,.6rem);color:rgba(255,255,255,.5);margin-top:2px}
+
+/* ── RIGHT — RESULT ── */
+#rResult{display:none;flex-direction:column;gap:5px;flex:1}
+@keyframes fsu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.stat-bar-wrap{background:rgba(74,184,92,.06);border:1px solid rgba(74,184,92,.2);
+  border-radius:5px;padding:7px;flex-shrink:0}
+.erow2{display:flex;align-items:baseline;gap:5px;margin-bottom:3px}
+.enum{font-family:'Orbitron',monospace;font-size:clamp(1.2rem,3.5vw,1.7rem);
+  font-weight:900;line-height:1;color:var(--g);text-shadow:0 0 18px var(--g)}
+.elbl{font-family:'Orbitron',monospace;font-size:clamp(.35rem,.8vw,.42rem);
+  color:var(--cd);letter-spacing:.1em;line-height:1.7}
+.etrack{height:5px;background:rgba(0,245,255,.08);border-radius:3px;
+  overflow:hidden;border:1px solid rgba(0,245,255,.1)}
+.efill{height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--r),var(--a),var(--g));
+  transition:width 1.4s cubic-bezier(.16,1,.3,1)}
+
+.profile-result{display:flex;align-items:center;gap:6px;
+  background:rgba(191,95,255,.08);border:1px solid rgba(191,95,255,.2);
+  border-radius:4px;padding:5px 8px;flex-shrink:0}
+.profile-icon{font-size:clamp(1rem,2.5vw,1.2rem)}
+.profile-name{font-family:'Orbitron',monospace;font-size:clamp(.44rem,1.1vw,.52rem);
+  font-weight:700;color:var(--p);letter-spacing:.06em}
+.profile-sub{font-size:clamp(.48rem,1.1vw,.58rem);color:rgba(255,255,255,.45)}
+
+.stat-quote{font-size:clamp(.48rem,1.1vw,.6rem);color:rgba(57,255,20,.6);
+  font-style:italic;text-align:center;padding:2px 0;flex-shrink:0;
+  font-family:'Share Tech Mono',monospace;letter-spacing:.04em}
+
+.vibe{font-size:clamp(.6rem,1.4vw,.72rem);font-weight:600;color:#e0f7fa;line-height:1.35;
+  padding:6px 8px;background:rgba(74,184,92,.06);
+  border-left:2px solid var(--egl);border-radius:0 4px 4px 0;flex-shrink:0}
+
+.prec{display:flex;align-items:center;gap:6px;background:rgba(74,184,92,.07);
+  border:1px solid rgba(74,184,92,.25);border-radius:4px;padding:6px;flex-shrink:0}
+.pico{font-size:clamp(1rem,2.5vw,1.2rem);min-width:24px;text-align:center}
+.pinf{flex:1;min-width:0}
+.pnm{font-family:'Orbitron',monospace;font-size:clamp(.42rem,1vw,.5rem);
+  font-weight:700;color:var(--egl);letter-spacing:.04em;margin-bottom:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pds{font-size:clamp(.5rem,1.1vw,.58rem);color:rgba(255,255,255,.55);line-height:1.2}
+.pbdg{font-family:'Share Tech Mono',monospace;font-size:clamp(.36rem,.8vw,.42rem);
+  background:rgba(74,184,92,.12);color:var(--egl);border:1px solid rgba(74,184,92,.3);
+  padding:2px 4px;border-radius:2px;white-space:nowrap;flex-shrink:0}
+
+.chips{display:flex;gap:3px;flex-wrap:wrap;flex-shrink:0}
+.chip{font-family:'Share Tech Mono',monospace;font-size:clamp(.36rem,.8vw,.44rem);
+  padding:2px 5px;background:rgba(0,245,255,.05);border:1px solid var(--b);
+  border-radius:2px;color:var(--c);letter-spacing:.03em}
+
+/* QR CARD */
+.qr-card{background:linear-gradient(135deg,rgba(45,138,62,.1),rgba(0,245,255,.04));
+  border:1px solid rgba(74,184,92,.3);border-radius:7px;padding:8px;
+  flex-shrink:0;position:relative;overflow:hidden}
+.qr-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--egl),var(--c),var(--egl));animation:sl 3s linear infinite}
+.qr-card-label{font-family:'Orbitron',monospace;font-size:clamp(.34rem,.8vw,.4rem);
+  letter-spacing:.2em;color:var(--egl);text-align:center;margin-bottom:6px}
+.qr-body{display:flex;align-items:center;gap:10px}
+.qr-box{background:#fff;padding:5px;border-radius:5px;
+  width:158px;height:158px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 16px rgba(74,184,92,.3);position:relative}
+.qr-pulse-ring{position:absolute;inset:-4px;border-radius:8px;
+  border:1px solid rgba(74,184,92,.4);animation:qrp 2s ease-out infinite}
+@keyframes qrp{0%{transform:scale(.95);opacity:.8}100%{transform:scale(1.1);opacity:0}}
+.qr-info{flex:1}
+.qr-cam{font-size:clamp(1rem,2.5vw,1.4rem);animation:camb 2s ease-in-out infinite;display:block;margin-bottom:3px}
+@keyframes camb{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.qr-title{font-family:'Orbitron',monospace;font-size:clamp(.38rem,.9vw,.46rem);
+  color:var(--egl);letter-spacing:.1em;margin-bottom:3px}
+.qr-desc{font-size:clamp(.48rem,1.1vw,.56rem);color:rgba(255,255,255,.48);line-height:1.35}
+.qr-disc{font-family:'Share Tech Mono',monospace;font-size:clamp(.34rem,.7vw,.4rem);
+  color:rgba(74,184,92,.5);text-align:center;margin-top:5px;line-height:1.4}
+
+.action-btns{display:flex;gap:6px;flex-shrink:0}
+#verRecetaBtn{flex:1;font-family:'Orbitron',monospace;font-size:clamp(.38rem,.9vw,.44rem);
+  font-weight:700;letter-spacing:.1em;padding:9px 4px;
+  background:linear-gradient(135deg,rgba(45,138,62,.15),rgba(0,245,255,.06));
+  border:1px solid rgba(74,184,92,.4);color:var(--egl);cursor:pointer;
+  border-radius:4px;text-transform:uppercase;transition:all .3s;
+  -webkit-tap-highlight-color:transparent}
+#verRecetaBtn:hover,#verRecetaBtn:active{box-shadow:0 0 12px rgba(74,184,92,.4);color:#fff}
+#rescanBtn{flex:1;font-family:'Share Tech Mono',monospace;font-size:clamp(.42rem,1vw,.5rem);
+  letter-spacing:.1em;padding:9px 4px;background:transparent;
+  border:1px solid rgba(0,245,255,.2);color:var(--cd);cursor:pointer;
+  border-radius:3px;transition:all .3s;text-transform:uppercase;
+  -webkit-tap-highlight-color:transparent}
+#rescanBtn:hover,#rescanBtn:active{border-color:var(--c);color:var(--c)}
+
+#radarWrap{display:flex;justify-content:center;align-items:center;width:100%;flex:1;min-height:0}
+#radarCanvas{width:100%;height:100%;max-width:160px;max-height:160px;display:block}
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE — landscape wide (monitor quiosco girado
+   a landscape, o pantalla grande horizontal)
+   min-width:900px AND landscape orientation
+══════════════════════════════════════════════════ */
+@media (min-width:900px) and (orientation:landscape){
+  html,body{overflow:hidden}
+  #app{display:grid;grid-template-rows:52px 1fr}
+
+  /* Columnas: izq más ancha para radar, derecha más ancha para resultado */
+  #body{
+    grid-template-columns:200px 1fr 300px;
+    grid-template-rows:1fr;
+    grid-template-areas:"left mid right"
+  }
+  #left  {grid-area:left}
+  #center{grid-area:mid}
+  #right {grid-area:right}
+
+  /* ── LEFT landscape: columna vertical, radar grande ── */
+  #left{flex-direction:column;gap:8px;padding:8px;
+    border-bottom:none;border-right:1px solid var(--b);overflow:hidden}
+
+  /* Biomarcadores compacto */
+  #left .card:first-child{flex-shrink:0}
+  /* Expresiones compacto */
+  #left .card:nth-child(2){flex-shrink:0}
+  /* Radar ocupa TODO el espacio sobrante */
+  #left .card:last-child{
+    display:flex;flex:1;min-height:0;overflow:hidden;
+    flex-direction:column;padding:8px}
+
+  /* Radar fill completo dentro de su card */
+  #radarWrap{flex:1;min-height:0;width:100%;
+    display:flex;align-items:center;justify-content:center}
+  #radarCanvas{width:100%!important;height:100%!important;
+    max-width:none!important;max-height:none!important;display:block}
+
+  /* Barras más visibles */
+  .mbar{height:4px;margin-bottom:5px}
+  .mrow{margin-bottom:3px;font-size:.62rem}
+  .erow{font-size:.6rem;padding:3px 0}
+  .clbl{font-size:.52rem;letter-spacing:.18em;margin-bottom:6px}
+
+  /* ── CENTER landscape ── */
+  #center{gap:8px;padding:8px}
+
+  /* Botón INICIAR — grande, táctil, protagonista */
+  #scanBtn{
+    font-size:.82rem;letter-spacing:.22em;
+    padding:16px 0;
+    border-width:2px;border-radius:8px;
+    background:rgba(74,184,92,.06);
+    box-shadow:0 0 20px rgba(74,184,92,.25),inset 0 0 20px rgba(74,184,92,.04)}
+  #scanBtn:hover,#scanBtn:active{
+    background:rgba(74,184,92,.14);
+    box-shadow:0 0 35px rgba(74,184,92,.55),inset 0 0 30px rgba(74,184,92,.08)}
+  #scanBtn:disabled{opacity:.25}
+
+  /* ── RIGHT landscape: resultado con mejor legibilidad ── */
+  #right{border-top:none;border-left:1px solid var(--b);
+    max-height:none;overflow-y:auto;gap:8px;padding:10px;
+    scrollbar-width:thin;scrollbar-color:rgba(74,184,92,.3) transparent}
+  #right::-webkit-scrollbar{width:3px}
+  #right::-webkit-scrollbar-thumb{background:rgba(74,184,92,.35);border-radius:3px}
+
+  /* Idle: centrado vertical */
+  #rIdle{flex-direction:column;justify-content:center;align-items:center;gap:12px}
+  #rIdle .idle-logo{font-size:2.8rem}
+  #rIdle .idle-txt{font-size:.62rem;letter-spacing:.15em;line-height:2.2;text-align:center;color:rgba(74,184,92,.4)}
+  .idle-modes{display:flex;flex-direction:column;gap:6px;width:100%}
+  .idle-mode-card{padding:9px 12px}
+  .imc-title{font-size:.56rem}
+  .imc-desc{font-size:.66rem;line-height:1.5}
+
+  /* Loading: vertical */
+  #rLoading{flex-direction:column;gap:12px}
+  .ring{width:44px;height:44px}
+  #loadTxt{font-size:.62rem}
+
+  /* Números del diagnóstico más grandes */
+  .enum{font-size:2.2rem}
+  .elbl{font-size:.5rem;letter-spacing:.12em}
+  .etrack{height:6px}
+  .stat-bar-wrap{padding:10px}
+
+  /* Perfil más visible */
+  .profile-result{padding:8px 10px;gap:8px}
+  .profile-icon{font-size:1.5rem}
+  .profile-name{font-size:.62rem;letter-spacing:.08em}
+  .profile-sub{font-size:.66rem}
+
+  /* Stat quote */
+  .stat-quote{font-size:.66rem;padding:4px 0}
+
+  /* Vibe message: más legible */
+  .vibe{font-size:.8rem;line-height:1.5;padding:8px 12px}
+
+  /* Producto recomendado más grande */
+  .prec{padding:10px;gap:10px}
+  .pico{font-size:1.6rem;min-width:32px}
+  .pnm{font-size:.6rem;letter-spacing:.06em;white-space:normal}
+  .pds{font-size:.66rem;line-height:1.3}
+  .pbdg{font-size:.5rem;padding:3px 6px}
+
+  /* Chips más visibles */
+  .chip{font-size:.52rem;padding:3px 7px}
+
+  /* QR card: QR protagonista */
+  .qr-card{padding:10px}
+  .qr-card-label{font-size:.46rem;letter-spacing:.2em;margin-bottom:8px}
+  .qr-box{width:148px;height:148px}
+  .qr-title{font-size:.54rem}
+  .qr-desc{font-size:.62rem;line-height:1.4}
+  .qr-cam{font-size:1.6rem}
+
+  /* Botones acción más grandes */
+  .action-btns{gap:8px;margin-top:2px}
+  #verRecetaBtn{font-size:.52rem;padding:11px 6px;letter-spacing:.12em}
+  #rescanBtn{font-size:.56rem;padding:11px 6px}
+
+  /* Header */
+  .htitle{font-size:.88rem}
+  .hsub{display:block;font-size:.46rem}
+  .hstat{font-size:.58rem}
+  .counter-badge{font-size:.56rem}
+}
+
+/* ══ PORTRAIT phone/tablet (≤899px portrait) ══ */
+@media (max-width:899px),(orientation:portrait){
+  /* show subtítulo solo si hay espacio */
+  .hsub{display:none}
+
+  /* stats row: 2 cards side by side */
+  #left{flex-direction:row;max-height:clamp(90px,20vh,130px)}
+  #left .card{flex:1}
+  #left .card:last-child{display:none}
+
+  /* bottom panel taller on tall phones */
+  #right{max-height:42vh}
+
+  /* QR box: smaller on phone */
+  .qr-box{width:120px;height:120px}
+  .qr-body{gap:8px}
+  .qr-cam{display:none}
+
+  /* survey grid: 2 cols on phone for 9-option grid */
+  .sv-g9{grid-template-columns:repeat(2,1fr)}
+  .sv-g3{grid-template-columns:repeat(3,1fr)}
+  .sv-g4{grid-template-columns:repeat(2,1fr)}
+}
+
+/* ══ Very small phones (≤400px) ══ */
+@media (max-width:400px){
+  #left{max-height:80px}
+  #right{max-height:38vh}
+  .sv-g9{grid-template-columns:repeat(2,1fr)}
+  .sv-g3{grid-template-columns:repeat(3,1fr)}
+  .qr-box{width:100px;height:100px}
+  .qr-body{flex-direction:column;align-items:flex-start}
+}
+
+/* ══ ENCUESTA OVERLAY — pantalla completa táctil ══ */
+#svOverlay{
+  position:fixed;inset:0;z-index:9999;
+  background:rgba(2,11,18,.98);
+  backdrop-filter:blur(16px);
+  display:none;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:28px 20px;
+}
+#svOverlay.sv-on{display:flex;animation:fsu .3s ease}
+.sv-hdr{font-family:'Orbitron',monospace;font-size:clamp(.65rem,1.4vw,1rem);font-weight:900;
+  letter-spacing:.18em;color:var(--egl);text-shadow:0 0 18px var(--egl);
+  text-align:center;margin-bottom:4px}
+.sv-sub{font-family:'Share Tech Mono',monospace;font-size:clamp(.42rem,.72vw,.58rem);
+  letter-spacing:.18em;color:var(--cd);opacity:.5;text-align:center;margin-bottom:20px}
+.sv-bar{display:flex;gap:14px;align-items:center;justify-content:center;margin-bottom:24px}
+.sv-pip{width:48px;height:5px;border-radius:3px;
+  background:rgba(74,184,92,.13);border:1px solid rgba(74,184,92,.25);transition:all .35s}
+.sv-pip.sv-done{background:var(--egl);box-shadow:0 0 8px rgba(74,184,92,.55)}
+.sv-pip.sv-cur{background:rgba(74,184,92,.42);box-shadow:0 0 4px rgba(74,184,92,.3)}
+.sv-lbl{font-family:'Share Tech Mono',monospace;font-size:clamp(.44rem,.65vw,.55rem);
+  color:rgba(74,184,92,.45);letter-spacing:.12em}
+.sv-step{display:none;flex-direction:column;align-items:center;width:100%;max-width:920px}
+.sv-step.sv-on{display:flex;animation:fsu .25s ease}
+.sv-q{font-family:'Rajdhani',sans-serif;font-size:clamp(1.25rem,3vw,2.1rem);
+  font-weight:700;color:#e0f7fa;text-align:center;line-height:1.3;
+  margin-bottom:clamp(16px,2.5vh,30px)}
+.sv-grid{display:grid;width:100%;gap:clamp(8px,1.1vw,13px)}
+.sv-g9{grid-template-columns:repeat(3,1fr)}
+.sv-g3{grid-template-columns:repeat(3,1fr)}
+.sv-g4{grid-template-columns:repeat(2,1fr)}
+.sv-btn{
+  font-family:'Rajdhani',sans-serif;
+  font-size:clamp(.88rem,1.8vw,1.2rem);font-weight:600;
+  padding:clamp(15px,2.3vh,25px) 12px;
+  background:rgba(0,245,255,.04);
+  border:2px solid rgba(0,245,255,.14);
+  color:var(--c);cursor:pointer;border-radius:12px;
+  transition:background .18s,border-color .18s,box-shadow .18s,transform .18s;
+  text-align:center;line-height:1.3;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+.sv-btn:hover,.sv-btn:focus{
+  background:rgba(74,184,92,.15);border-color:var(--egl);
+  color:#fff;box-shadow:0 0 18px rgba(74,184,92,.25);
+  transform:translateY(-2px);outline:none}
+.sv-btn.sv-sel{
+  background:rgba(74,184,92,.22);border-color:var(--egl);
+  color:var(--egl);box-shadow:0 0 22px rgba(74,184,92,.38);transform:scale(.98)}
+.sv-ico{font-size:clamp(1.2rem,2.6vw,1.8rem);line-height:1;pointer-events:none}
+.sv-foot{font-family:'Share Tech Mono',monospace;font-size:clamp(.43rem,.62vw,.54rem);
+  color:rgba(74,184,92,.3);letter-spacing:.14em;margin-top:16px}
+
+/* Survey grid — ultimo boton solo ocupa ancho completo */
+.sv-g9 .sv-btn:last-child:nth-child(odd){grid-column:1/-1}
+#licScreen{
+  position:fixed;inset:0;z-index:99999;
+  background:#020b12;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:18px;padding:40px;
+}
+#licScreen.lic-hide{display:none}
+.lic-logo{font-size:3.5rem;animation:pls 3s ease-in-out infinite}
+.lic-title{font-family:'Orbitron',monospace;font-size:clamp(1rem,2.5vw,1.6rem);
+  font-weight:900;color:var(--egl);text-shadow:0 0 20px var(--egl);
+  letter-spacing:.18em;text-align:center}
+.lic-sub{font-family:'Share Tech Mono',monospace;font-size:clamp(.5rem,.9vw,.7rem);
+  letter-spacing:.18em;color:var(--cd);opacity:.6;text-align:center}
+.lic-box{display:flex;flex-direction:column;align-items:center;gap:12px;
+  background:rgba(0,245,255,.04);border:1px solid rgba(74,184,92,.3);
+  border-radius:12px;padding:28px 36px;width:100%;max-width:420px}
+.lic-label{font-family:'Share Tech Mono',monospace;font-size:.62rem;
+  letter-spacing:.2em;color:var(--cd);opacity:.7}
+.lic-input{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:700;
+  letter-spacing:.3em;text-align:center;
+  background:rgba(0,0,0,.4);border:2px solid rgba(74,184,92,.4);
+  color:var(--egl);border-radius:8px;padding:14px 20px;width:100%;
+  outline:none;transition:border-color .3s}
+.lic-input:focus{border-color:var(--egl);box-shadow:0 0 16px rgba(74,184,92,.3)}
+.lic-input::placeholder{color:rgba(74,184,92,.25);font-size:1rem}
+.lic-btn{font-family:'Orbitron',monospace;font-size:.62rem;font-weight:700;
+  letter-spacing:.2em;padding:14px 0;width:100%;
+  background:transparent;border:2px solid var(--egl);color:var(--egl);
+  cursor:pointer;border-radius:8px;text-transform:uppercase;
+  transition:all .3s;margin-top:4px}
+.lic-btn:hover{background:rgba(74,184,92,.15);box-shadow:0 0 20px rgba(74,184,92,.4)}
+.lic-err{font-family:'Share Tech Mono',monospace;font-size:.58rem;
+  color:var(--r);letter-spacing:.12em;text-align:center;
+  min-height:16px;transition:opacity .3s}
+.lic-contact{font-family:'Share Tech Mono',monospace;font-size:.52rem;
+  letter-spacing:.12em;color:rgba(255,255,255,.35);text-align:center;line-height:1.8}
+.lic-contact b{color:var(--egl)}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <div id="hdr">
+    <div class="hbrand">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <circle cx="14" cy="14" r="12" stroke="#4ab85c" stroke-width="1.2" opacity=".5"/>
+        <circle cx="14" cy="14" r="7.5" stroke="#4ab85c" stroke-width="1" opacity=".8"/>
+        <path d="M14 5 L15.6 12.5 L14 14 L12.4 12.5 Z" fill="#4ab85c"/>
+        <circle cx="14" cy="14" r="2.2" fill="#4ab85c"/>
+        <circle cx="14" cy="14" r="1" fill="#fff"/>
+      </svg>
+      <div>
+        <div class="htitle">🌿 Espejo del Bienestar · Energreen</div>
+        <div class="hsub">DIAGNÓSTICO NATURAL CON IA · SOLO ORIENTATIVO · NO ES PRESCRIPCIÓN MÉDICA</div>
+      </div>
+    </div>
+    <div class="hstat">
+      <span><span class="dot"></span>ACTIVO</span>
+      <span id="clock">00:00:00</span>
+      <span id="fpsTag">FPS:--</span>
+      <div class="counter-badge">👥 Hoy: <span id="counterDisplay">0</span> análisis</div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div id="body">
+
+    <!-- LEFT -->
+    <div id="left">
+      <div class="card">
+        <div class="clbl">▸ Biomarcadores</div>
+        <div class="mrow"><span class="ml">VITALIDAD</span><span class="mv" id="m-vital">--</span></div>
+        <div class="mbar"><div class="mbf" id="b-vital" style="width:0%"></div></div>
+        <div class="mrow"><span class="ml">HIDRATACIÓN</span><span class="mv" id="m-hydra">--</span></div>
+        <div class="mbar"><div class="mbf" id="b-hydra" style="width:0%"></div></div>
+        <div class="mrow"><span class="ml">ESTRÉS</span><span class="mv" id="m-stress">--</span></div>
+        <div class="mbar"><div class="mbf" id="b-stress" style="width:0%;background:linear-gradient(90deg,var(--g),var(--r))"></div></div>
+        <div class="mrow"><span class="ml">MOOD</span><span class="mv" id="m-mood">--</span></div>
+        <div class="mbar"><div class="mbf" id="b-mood" style="width:0%"></div></div>
+      </div>
+      <div class="card">
+        <div class="clbl">▸ Expresiones Live</div>
+        <div class="erow"><span class="en">Alegría</span><span class="ev2" id="e-happy">0%</span></div>
+        <div class="erow"><span class="en">Tristeza</span><span class="ev2" id="e-sad">0%</span></div>
+        <div class="erow"><span class="en">Enojo</span><span class="ev2" id="e-angry">0%</span></div>
+        <div class="erow"><span class="en">Sorpresa</span><span class="ev2" id="e-surprised">0%</span></div>
+        <div class="erow"><span class="en">Miedo</span><span class="ev2" id="e-fearful">0%</span></div>
+        <div class="erow" style="border:none"><span class="en">Neutro</span><span class="ev2" id="e-neutral">0%</span></div>
+      </div>
+      <div class="card" style="flex:1;min-height:0;overflow:hidden">
+        <div class="clbl">▸ Radar Wellness</div>
+        <div id="radarWrap"><canvas id="radarCanvas"></canvas></div>
+      </div>
+    </div>
+
+    <!-- CENTER -->
+    <div id="center">
+      <div id="mstatus">⟳ Iniciando análisis facial Energreen...</div>
+
+      <!-- MODE SELECTOR eliminado — ahora es flujo único con encuesta -->
+
+      <div id="camWrap">
+        <div id="camInner">
+          <video id="videoEl" autoplay muted playsinline></video>
+          <canvas id="canvasEl"></canvas>
+          <canvas id="scanPointsCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6;opacity:0;transition:opacity .5s"></canvas>
+          <div class="sov"><div class="sline"></div><div class="svig"></div></div>
+          <div class="cr cr-tl"></div><div class="cr cr-tr"></div>
+          <div class="cr cr-bl"></div><div class="cr cr-br"></div>
+          <div class="htag tl" id="coordTag">X:---- Y:----</div>
+          <div class="htag tr" id="confTag">CONF: --</div>
+          <div class="htag bl" id="faceTag">ROSTRO: BUSCANDO...</div>
+          <div class="htag br">SEC: <span id="secCount">000</span></div>
+        </div>
+      </div>
+
+      <div id="noFace">⚠ Centra tu rostro en el encuadre</div>
+      <button id="scanBtn" disabled>🌿 INICIAR ANÁLISIS DE BIENESTAR</button>
+    </div>
+
+    <!-- RIGHT -->
+    <div id="right">
+
+      <!-- IDLE -->
+      <div id="rIdle">
+        <div class="idle-logo">🌿</div>
+        <div class="idle-txt">POSICIONA TU ROSTRO<br>Y PRESIONA ANALIZAR</div>
+        <div class="idle-modes">
+          <div class="idle-mode-card">
+            <div class="imc-title">🌿 ANÁLISIS PERSONALIZADO</div>
+            <div class="imc-desc">Detección facial + 3 preguntas rápidas. Recomendación exacta del catálogo Energreen para ti.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOADING -->
+      <div id="rLoading">
+        <div class="ring"></div>
+        <div id="loadTxt">ANALIZANDO ADN DE BIENESTAR...</div>
+      </div>
+
+      <!-- QUESTIONS (Deep Test) -->
+      <div id="rQuestions">
+        <div class="q-header">◈ TEST PROFUNDO — PERSONALIZACIÓN</div>
+        <div class="q-progress">
+          <div class="q-dot" id="qd1"></div>
+          <div class="q-dot" id="qd2"></div>
+          <div class="q-dot" id="qd3"></div>
+        </div>
+        <div class="q-profile-badge">
+          <div class="q-profile-name" id="qProfileName">—</div>
+          <div class="q-profile-sub">Perfil detectado por IA</div>
+        </div>
+        <div class="q-card">
+          <div class="q-text" id="qText">¿Cómo te has sentido?</div>
+          <div class="q-options" id="qOptions"></div>
+        </div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.5rem;color:rgba(0,245,255,.3);text-align:center">
+          Pregunta <span id="qNum">1</span> de 3
+        </div>
+      </div>
+
+      <!-- RESULT -->
+      <div id="rResult">
+        <div class="stat-bar-wrap">
+          <div class="clbl" style="margin-bottom:4px">◈ DIAGNÓSTICO ENERGREEN</div>
+          <div class="erow2">
+            <div class="enum" id="energyNum">--</div>
+            <div class="elbl">%<br>BATERÍA<br>HUMANA</div>
+          </div>
+          <div class="etrack"><div class="efill" id="energyBar" style="width:0%"></div></div>
+        </div>
+        <div class="profile-result">
+          <div class="profile-icon" id="resultProfileIcon">🌿</div>
+          <div>
+            <div class="profile-name" id="resultProfileName">—</div>
+            <div class="profile-sub" id="resultProfileSub">Tu perfil de bienestar hoy</div>
+          </div>
+        </div>
+        <div class="stat-quote" id="statQuote">—</div>
+        <div class="vibe" id="vibeMsg">...</div>
+        <div class="prec">
+          <div class="pico" id="recIcon">🌿</div>
+          <div class="pinf">
+            <div class="pnm" id="recName">---</div>
+            <div class="pds" id="recDesc">---</div>
+          </div>
+          <div class="pbdg" id="recBadge">---</div>
+        </div>
+        <div class="chips" id="secChips"></div>
+        <div class="qr-card">
+          <div class="qr-card-label">◈ TU RECETA ENERGREEN · ESCANEA O FOTOGRAFÍA</div>
+          <div class="qr-body">
+            <div class="qr-box">
+              <div class="qr-pulse-ring"></div>
+              <div id="qrCode"></div>
+            </div>
+            <div class="qr-info">
+              <span class="qr-cam">📸</span>
+              <div class="qr-title">¡Toma foto o escanea!</div>
+              <div class="qr-desc">Muestra en el mostrador o escanea para contactar a tu asesor Energreen por WhatsApp</div>
+            </div>
+          </div>
+          <div class="qr-disc">🤖 IA orientativa · No es prescripción · Solo informativo · Energreen</div>
+        </div>
+        <div class="action-btns">
+          <button id="verRecetaBtn" onclick="abrirReceta()">📄 RECETA COMPLETA</button>
+          <button id="rescanBtn">↺ NUEVO</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ENCUESTA OVERLAY ══════════════ -->
+<div id="svOverlay">
+  <div class="sv-hdr">🌿 Espejo del Bienestar · Energreen</div>
+  <div class="sv-sub">CUÉNTANOS UN POCO — PERSONALIZAMOS TU RECOMENDACIÓN</div>
+  <div class="sv-bar">
+    <div class="sv-pip sv-cur" id="svp1"></div>
+    <div class="sv-pip" id="svp2"></div>
+    <div class="sv-pip" id="svp3"></div>
+    <span class="sv-lbl" id="svLbl">PASO 1 DE 3</span>
+  </div>
+
+  <!-- P1: Intención -->
+  <div class="sv-step sv-on" id="svS1">
+    <div class="sv-q">¿Qué te trajo a Energreen hoy?</div>
+    <div class="sv-grid sv-g9">
+      <button class="sv-btn" onclick="svPick(1,this,'energia')">    <span class="sv-ico">⚡</span>Energía y vitalidad</button>
+      <button class="sv-btn" onclick="svPick(1,this,'descanso')">   <span class="sv-ico">🌙</span>Sueño y descanso</button>
+      <button class="sv-btn" onclick="svPick(1,this,'estres')">     <span class="sv-ico">🧘</span>Estrés y ansiedad</button>
+      <button class="sv-btn" onclick="svPick(1,this,'piel')">       <span class="sv-ico">✨</span>Belleza y piel</button>
+      <button class="sv-btn" onclick="svPick(1,this,'digestion')">  <span class="sv-ico">🌱</span>Digestión</button>
+      <button class="sv-btn" onclick="svPick(1,this,'dolores')">    <span class="sv-ico">🦴</span>Dolores y articulaciones</button>
+      <button class="sv-btn" onclick="svPick(1,this,'defensas')">   <span class="sv-ico">🛡️</span>Defensas / Inmunidad</button>
+      <button class="sv-btn" onclick="svPick(1,this,'glucosa')">    <span class="sv-ico">🩸</span>Glucosa y diabetes</button>
+      <button class="sv-btn" onclick="svPick(1,this,'neutral')">    <span class="sv-ico">🔍</span>Solo estoy explorando</button>
+    </div>
+    <div class="sv-foot">TOCA UNA OPCIÓN PARA CONTINUAR</div>
+  </div>
+
+  <!-- P2: Género -->
+  <div class="sv-step" id="svS2">
+    <div class="sv-q">¿Cómo te identificas?</div>
+    <div class="sv-grid sv-g3">
+      <button class="sv-btn" onclick="svPick(2,this,'mujer')">  <span class="sv-ico">👩</span>Mujer</button>
+      <button class="sv-btn" onclick="svPick(2,this,'hombre')"> <span class="sv-ico">👨</span>Hombre</button>
+      <button class="sv-btn" onclick="svPick(2,this,'otro')">   <span class="sv-ico">🌈</span>Prefiero no decir</button>
+    </div>
+    <div class="sv-foot">PASO 2 DE 3</div>
+  </div>
+
+  <!-- P3: Etapa -->
+  <div class="sv-step" id="svS3">
+    <div class="sv-q">¿En qué etapa de vida estás?</div>
+    <div class="sv-grid sv-g4">
+      <button class="sv-btn" onclick="svPick(3,this,'joven')">
+        <span class="sv-ico">🌱</span>Joven adulto<br><small style="font-size:.72em;opacity:.5;font-weight:400">18 – 30 años</small>
+      </button>
+      <button class="sv-btn" onclick="svPick(3,this,'adulto')">
+        <span class="sv-ico">🌿</span>Adulto<br><small style="font-size:.72em;opacity:.5;font-weight:400">31 – 45 años</small>
+      </button>
+      <button class="sv-btn" onclick="svPick(3,this,'maduro')">
+        <span class="sv-ico">🌳</span>Maduro<br><small style="font-size:.72em;opacity:.5;font-weight:400">46 – 60 años</small>
+      </button>
+      <button class="sv-btn" onclick="svPick(3,this,'senior')">
+        <span class="sv-ico">🌲</span>Senior<br><small style="font-size:.72em;opacity:.5;font-weight:400">61+ años</small>
+      </button>
+    </div>
+    <div class="sv-foot">ÚLTIMO PASO — ¡YA CASI!</div>
+  </div>
+</div><!-- fin #svOverlay -->
+
+<!-- ══ PANTALLA DE LICENCIA ══ -->
+<div id="licScreen">
+  <div class="lic-logo">🌿</div>
+  <div class="lic-title">ESPEJO DEL BIENESTAR</div>
+  <div class="lic-sub">INGRESA TU CLAVE MENSUAL DE ACCESO</div>
+  <div class="lic-box">
+    <div class="lic-label">CLAVE DE ACTIVACIÓN</div>
+    <input class="lic-input" id="licInput" type="password"
+      placeholder="········" maxlength="10"
+      onkeydown="if(event.key==='Enter')licVerify()">
+    <button class="lic-btn" onclick="licVerify()">🔓 ACTIVAR</button>
+    <div class="lic-err" id="licErr"></div>
+  </div>
+  <div class="lic-contact">
+    ¿No tienes tu clave? Contacta a tu proveedor<br>
+    <b>WhatsApp: 81 1787 5917</b>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script>
+/* ══════════════════════════════════════
+   CONFIGURACIÓN
+══════════════════════════════════════ */
+const WA_NUMBER = '528182534891';
+
+/* ══════════════════════════════════════
+   SISTEMA DE LICENCIA MENSUAL
+   Fórmula: (mes * 28) + (año * 11)
+   Solo el propietario conoce la fórmula
+══════════════════════════════════════ */
+(function(){
+  const LIC_KEY = 'eg_lic_v1';
+  const LIC_MON = 'eg_lic_mon';
+
+  function claveCorrecta(input){
+    const now  = new Date();
+    const mes  = now.getMonth() + 1;   // 1–12
+    const anio = now.getFullYear() % 100; // últimos 2 dígitos, ej. 26
+    const esperada = String((mes * 28) + (anio * 11));
+    return input.trim() === esperada;
+  }
+
+  function mesActual(){
+    const n = new Date();
+    return n.getFullYear() + '-' + (n.getMonth()+1);
+  }
+
+  function licOk(){
+    try{
+      return localStorage.getItem(LIC_KEY)==='ok' &&
+             localStorage.getItem(LIC_MON)===mesActual();
+    }catch{return false;}
+  }
+
+  function licActivar(){
+    try{
+      localStorage.setItem(LIC_KEY,'ok');
+      localStorage.setItem(LIC_MON,mesActual());
+    }catch{}
+  }
+
+  window.licVerify = function(){
+    const val = document.getElementById('licInput').value;
+    const err = document.getElementById('licErr');
+    if(claveCorrecta(val)){
+      licActivar();
+      document.getElementById('licScreen').classList.add('lic-hide');
+      err.textContent='';
+      // Lanzar la app ahora que está activada
+      if(typeof init === 'function') init();
+    } else {
+      err.textContent='⚠ Clave incorrecta. Contacta a tu proveedor.';
+      document.getElementById('licInput').value='';
+      document.getElementById('licInput').focus();
+    }
+  };
+
+  // Verificar al cargar
+  if(licOk()){
+    document.getElementById('licScreen').classList.add('lic-hide');
+  } else {
+    // Bloquear init hasta que se active
+    const origInit = window.init;
+    window.init = function(){
+      if(licOk()) origInit && origInit();
+    };
+  }
+})();
+
+/* ══════════════════════════════════════
+   CONTADOR PERSISTENTE
+══════════════════════════════════════ */
+const TODAY = new Date().toDateString();
+let counterData = JSON.parse(localStorage.getItem('eg_counter') || '{"date":"","count":0}');
+if(counterData.date !== TODAY) counterData = {date:TODAY, count: Math.floor(Math.random()*15)+8};
+function getCount(){ return counterData.count; }
+function incCount(){ counterData.count++; localStorage.setItem('eg_counter',JSON.stringify(counterData)); updateCounterUI(); }
+function updateCounterUI(){ document.getElementById('counterDisplay').textContent = counterData.count; }
+updateCounterUI();
+
+/* ══════════════════════════════════════
+   CLOCK & TIMER
+══════════════════════════════════════ */
+let sec=0;
+setInterval(()=>{
+  document.getElementById('clock').textContent=new Date().toTimeString().slice(0,8);
+  document.getElementById('secCount').textContent=String(++sec).padStart(3,'0');
+},1000);
+
+/* ══════════════════════════════════════
+   RADAR
+══════════════════════════════════════ */
+const radarCanvas = document.getElementById('radarCanvas');
+const rc = radarCanvas.getContext('2d');
+
+function resizeRadar(){
+  const wrap = document.getElementById('radarWrap');
+  const size = Math.min(wrap.clientWidth, wrap.clientHeight, 160);
+  if(size < 40) return;
+  radarCanvas.width  = size;
+  radarCanvas.height = size;
+}
+
+function drawRadar(vals, labels){
+  resizeRadar();
+  const size = radarCanvas.width;
+  if(size < 40) return;
+  const cx = size/2, cy = size/2;
+  const r  = size * 0.36;
+  const n  = labels.length;
+  const c  = rc;
+  c.clearRect(0, 0, size, size);
+
+  // Anillos
+  for(let ring=1; ring<=4; ring++){
+    c.beginPath();
+    for(let i=0; i<=n; i++){
+      const a=(i/n)*Math.PI*2-Math.PI/2, rv=r*ring/4;
+      i===0 ? c.moveTo(cx+Math.cos(a)*rv, cy+Math.sin(a)*rv)
+             : c.lineTo(cx+Math.cos(a)*rv, cy+Math.sin(a)*rv);
+    }
+    c.closePath(); c.strokeStyle='rgba(74,184,92,.12)'; c.stroke();
+  }
+
+  // Ejes + etiquetas
+  const fontSize = Math.max(7, Math.round(size*0.055));
+  c.font = fontSize+'px Share Tech Mono';
+  c.textAlign = 'center';
+  for(let i=0; i<n; i++){
+    const a=(i/n)*Math.PI*2-Math.PI/2;
+    c.beginPath();
+    c.moveTo(cx, cy);
+    c.lineTo(cx+Math.cos(a)*r, cy+Math.sin(a)*r);
+    c.strokeStyle='rgba(74,184,92,.18)'; c.stroke();
+    c.fillStyle='rgba(74,184,92,.65)';
+    c.fillText(labels[i],
+      cx+Math.cos(a)*(r+fontSize*1.1),
+      cy+Math.sin(a)*(r+fontSize*1.1)+fontSize*0.35);
+  }
+
+  // Polígono de datos
+  c.beginPath();
+  for(let i=0; i<n; i++){
+    const a=(i/n)*Math.PI*2-Math.PI/2, rv=r*Math.min(vals[i],1);
+    i===0 ? c.moveTo(cx+Math.cos(a)*rv, cy+Math.sin(a)*rv)
+           : c.lineTo(cx+Math.cos(a)*rv, cy+Math.sin(a)*rv);
+  }
+  c.closePath();
+  c.fillStyle='rgba(74,184,92,.15)'; c.fill();
+  c.strokeStyle='rgba(74,184,92,.85)'; c.lineWidth=1.5; c.stroke();
+
+  // Puntos en vértices
+  for(let i=0; i<n; i++){
+    const a=(i/n)*Math.PI*2-Math.PI/2, rv=r*Math.min(vals[i],1);
+    c.beginPath();
+    c.arc(cx+Math.cos(a)*rv, cy+Math.sin(a)*rv, 2.5, 0, Math.PI*2);
+    c.fillStyle='rgba(74,184,92,.9)'; c.fill();
+  }
+}
+
+// Redibujar si cambia el tamaño de ventana
+window.addEventListener('resize', ()=>{
+  drawRadar([.3,.3,.3,.3,.3,.3],['VITA','HIDRA','MOOD','CALM','FOCO','VIBE']);
+});
+
+drawRadar([.3,.3,.3,.3,.3,.3],['VITA','HIDRA','MOOD','CALM','FOCO','VIBE']);
+
+/* ══════════════════════════════════════
+   CATÁLOGO COMPLETO ENERGREEN
+   Keyed por intención de encuesta
+══════════════════════════════════════ */
+const CATALOG = {
+  energia:[
+    {icon:'⚡',name:'Complejo B Energreen',       badge:'ENERGÍA',        desc:'Convierte nutrientes en energía. Piel, nervios y cerebro en óptimas condiciones.',               sec:['Ginseng Energreen','Maca Energreen','Espirulina Energreen','L-Carnitina Energreen'],    vibe:'¡Tu modo Superhéroe está en recarga! El Complejo B es el cargador que tu cuerpo necesita.',      e:[35,60],m:{vital:75,hydra:55,stress:35,mood:70}},
+    {icon:'🌿',name:'Ginseng Energreen',           badge:'VITALIDAD',      desc:'Aumenta resistencia física y mental. Reduce fatiga y potencia el rendimiento diario.',           sec:['Complejo B Energreen','Maca Energreen','Espirulina Energreen','Acai Berry Energreen'],  vibe:'La naturaleza tiene el combustible que tu cuerpo pide. Ginseng — energía real y sostenida.',      e:[40,65],m:{vital:80,hydra:60,stress:30,mood:75}},
+    {icon:'🔥',name:'Maca Energreen',              badge:'POTENCIA',       desc:'Energía, resistencia y vitalidad sostenida. Equilibrio hormonal y rendimiento físico.',          sec:['Ginseng Energreen','L-Carnitina Energreen','Complejo B Energreen','Espirulina Energreen'],vibe:'Maca: la raíz de los guerreros andinos. Tu cuerpo pide potencia — aquí está.',                  e:[45,70],m:{vital:85,hydra:55,stress:25,mood:80}},
+    {icon:'🌊',name:'Espirulina Energreen',        badge:'SÚPER ALIMENTO', desc:'Proteínas completas, vitaminas y minerales. Energía sostenida desde adentro.',                  sec:['Complejo B Energreen','Acai Berry Energreen','Maca Energreen','Ginseng Energreen'],     vibe:'Espirulina: el alimento más completo del planeta. Tu energía merece lo mejor.',                  e:[40,65],m:{vital:78,hydra:65,stress:28,mood:72}},
+    {icon:'✨',name:'Acai Berry Energreen',        badge:'ANTIOXIDANTE',   desc:'Antioxidante poderoso. Combate el envejecimiento, aporta energía y beneficia piel y cabello.',   sec:['Resveratrol Energreen','Espirulina Energreen','Vitamina E Energreen','Complejo B Energreen'],vibe:'¡Esa vibra es completamente contagiosa! Mantén ese brillo todo el mes con Acai Berry.',        e:[55,80],m:{vital:82,hydra:70,stress:20,mood:88}},
+    {icon:'🏃',name:'L-Carnitina Energreen',      badge:'RENDIMIENTO',    desc:'Transforma grasa en energía. Ideal para actividad física y rendimiento deportivo.',               sec:['Maca Energreen','Ginseng Energreen','Espirulina Energreen','Complejo B Energreen'],     vibe:'Tu cuerpo es una máquina. L-Carnitina convierte reservas en combustible puro.',                  e:[50,75],m:{vital:88,hydra:58,stress:22,mood:78}}
+  ],
+  descanso:[
+    {icon:'🌙',name:'Melatonina Energreen',        badge:'SUEÑO',          desc:'Regula el ciclo de sueño natural. Concilia rápido y descansa profundo toda la noche.',          sec:['Pasiflora Energreen','GABA Energreen','Citrato de Magnesio','Ojo de Gallina Energreen'], vibe:'Tu mente necesita apagarse para brillar mañana. Melatonina hace el trabajo.',                   e:[30,52],m:{vital:45,hydra:50,stress:55,mood:42}},
+    {icon:'🌸',name:'Pasiflora Energreen',         badge:'CALMA',          desc:'Concilia el sueño, alivia ansiedad y estrés. Efecto relajante y antiespasmódico natural.',        sec:['GABA Energreen','Ojo de Gallina Energreen','Citrato de Magnesio','Melatonina Energreen'], vibe:'Tu sistema nervioso está sensible. Pasiflora es la calma que tu cuerpo busca.',                 e:[28,50],m:{vital:42,hydra:52,stress:72,mood:38}},
+    {icon:'💫',name:'GABA Energreen',              badge:'RELAJACIÓN',     desc:'Calma el sistema nervioso central. Mejora la calidad del sueño y reduce la ansiedad.',           sec:['Pasiflora Energreen','Ojo de Gallina Energreen','Citrato de Magnesio','Ashwa Gandha Energreen'],vibe:'Cuando la mente no para, GABA pone el freno suave que necesitas para descansar.',          e:[32,55],m:{vital:48,hydra:48,stress:68,mood:40}},
+    {icon:'🦴',name:'Citrato de Magnesio',         badge:'MÚSCULOS',       desc:'Relaja músculos y reduce calambres. Mejora la calidad del sueño y la recuperación.',             sec:['GABA Energreen','Pasiflora Energreen','Ojo de Gallina Energreen','Melatonina Energreen'], vibe:'Músculos tensos, sueño interrumpido. Magnesio relaja todo lo que necesitas soltar.',            e:[35,55],m:{vital:50,hydra:55,stress:62,mood:45}},
+    {icon:'👁',name:'Ojo de Gallina Energreen',    badge:'ANTI-ANSIEDAD',  desc:'Reduce ansiedad, mejora el sueño y relaja músculos de forma natural y sin efectos secundarios.',sec:['GABA Energreen','Pasiflora Energreen','Citrato de Magnesio','Melatonina Energreen'],     vibe:'La naturaleza tiene su propia receta para la calma. Ojo de Gallina — serenidad natural.',       e:[30,52],m:{vital:44,hydra:50,stress:70,mood:40}}
+  ],
+  estres:[
+    {icon:'🍃',name:'Ashwa Gandha Energreen',      badge:'ADAPTÓGENO',     desc:'Adaptógeno que maneja el estrés, reduce inflamación y fortalece el sistema inmunológico.',       sec:['Rhodiola Energreen','GABA Energreen','Citrato de Magnesio','NAD Energreen'],            vibe:'Nivel cortisol detectado: alto. Ashwa Gandha es la respuesta natural de Energreen.',            e:[35,58],m:{vital:52,hydra:55,stress:82,mood:42}},
+    {icon:'🌱',name:'Rhodiola Energreen',          badge:'EQUILIBRIO',     desc:'Reduce fatiga mental y física, combate la depresión y mejora la memoria bajo estrés.',          sec:['Ashwa Gandha Energreen','GABA Energreen','Complejo B Energreen','Melatonina Energreen'], vibe:'Rhodiola: el adaptógeno de los exploradores siberianos. Tu mente encuentra su centro.',         e:[38,62],m:{vital:58,hydra:52,stress:75,mood:48}},
+    {icon:'🌊',name:'Citrato de Magnesio',        badge:'CALMA MUSCULAR', desc:'Relaja músculos, reduce tensión y calambres. Apoya el sistema nervioso bajo estrés crónico.',   sec:['Ashwa Gandha Energreen','GABA Energreen','Pasiflora Energreen','Rhodiola Energreen'],   vibe:'El estrés se acumula en el cuerpo. Magnesio relaja cada músculo tenso y calma el sistema.',   e:[36,58],m:{vital:54,hydra:55,stress:72,mood:46}},
+    {icon:'⚗',name:'NAD Energreen',               badge:'LONGEVIDAD',     desc:'Longevidad celular. Retrasa el envejecimiento. Aumenta vitalidad desde el núcleo celular.',      sec:['Ashwa Gandha Energreen','Rhodiola Energreen','Resveratrol Energreen','Complejo B Energreen'],vibe:'El estrés envejece. NAD trabaja a nivel celular para revertir ese desgaste invisible.',     e:[45,68],m:{vital:65,hydra:55,stress:70,mood:52}}
+  ],
+  piel:[
+    {icon:'💎',name:'Colágeno de Oro Cápsulas',   badge:'PIEL & JUVENTUD', desc:'Mejora apariencia de piel, reduce arrugas, fortalece ligamentos y optimiza cabello y uñas.',   sec:['Resveratrol Energreen','Vitamina E Energreen','CollageXfungi','Colágeno Hidrolizado Frutos Rojos'],vibe:'Tu piel pide un reset profundo. El Colágeno de Oro es exactamente lo que necesitas.',  e:[42,65],m:{vital:58,hydra:38,stress:42,mood:52}},
+    {icon:'🍇',name:'Resveratrol Energreen',       badge:'ANTI-EDAD',      desc:'Antioxidante premium. Reduce arrugas, combate inflamación y protege la piel del tiempo.',        sec:['Colágeno de Oro Cápsulas','Vitamina E Energreen','NAD Energreen','CollageXfungi'],       vibe:'La piel que ves es el reflejo de lo que das por dentro. Resveratrol es tu escudo antioxidante.',e:[48,72],m:{vital:62,hydra:42,stress:38,mood:58}},
+    {icon:'🍓',name:'Colágeno Hidrolizado Frutos Rojos',badge:'COLÁGENO', desc:'Piel, uñas, cabello y articulaciones. Fórmula con frutos rojos antioxidantes.',               sec:['Colágeno de Oro Cápsulas','Resveratrol Energreen','Vitamina E Energreen','CollageXfungi'], vibe:'La belleza viene de adentro. Colágeno con frutos rojos — nutrición y brillo en uno.',          e:[45,68],m:{vital:60,hydra:45,stress:35,mood:55}},
+    {icon:'🍄',name:'CollageXfungi',               badge:'COLÁGENO+HONGOS',desc:'Colágeno premium con Reishi, Shiitake y Maitake. Piel y sistema inmune en un solo suplemento.', sec:['Colágeno de Oro Cápsulas','Resveratrol Energreen','Vitamina E Energreen','Hongo Reishi Energreen'],vibe:'Lo que la naturaleza tardó miles de años en crear para mantenerte radiante — CollageXfungi.',e:[50,74],m:{vital:65,hydra:48,stress:32,mood:60}},
+    {icon:'🌻',name:'Vitamina E Energreen',        badge:'ANTIOXIDANTE',   desc:'Protege la piel de daño oxidativo. Reduce cicatrices, manchas y signos de envejecimiento.',    sec:['Colágeno de Oro Cápsulas','Resveratrol Energreen','CollageXfungi','NAD Energreen'],      vibe:'La vitamina más bella. Vitamina E cuida tu piel desde adentro con poder antioxidante real.',   e:[44,68],m:{vital:58,hydra:44,stress:36,mood:54}}
+  ],
+  digestion:[
+    {icon:'🦠',name:'Probióticos Energreen',       badge:'FLORA INTESTINAL',desc:'1,620 millones de probióticos. Equilibra flora intestinal, combate estreñimiento y gastritis.',sec:['Dtox Energreen','Cardo Mariano Energreen','Aloe Vera Energreen','Diente de León Energreen'],vibe:'Tu intestino es tu segundo cerebro. Probióticos — el reset que tu microbioma necesita.',      e:[42,65],m:{vital:58,hydra:62,stress:45,mood:55}},
+    {icon:'🌵',name:'Aloe Vera Energreen',         badge:'MUCOSA GÁSTRICA', desc:'Regenera la mucosa gástrica, alivia acidez y mejora la digestión en general.',                sec:['Probióticos Energreen','Cardo Mariano Energreen','Diente de León Energreen','Dtox Energreen'],vibe:'La planta más sabia del desierto. Aloe Vera sana desde adentro con suavidad.',           e:[44,66],m:{vital:55,hydra:68,stress:42,mood:52}},
+    {icon:'🌾',name:'Cardo Mariano Energreen',     badge:'HÍGADO',          desc:'Protege y regenera el hígado. Desintoxica y mejora la función hepática natural.',               sec:['Dtox Energreen','Diente de León Energreen','Probióticos Energreen','Aloe Vera Energreen'],vibe:'Tu hígado filtra todo lo que vives. Cardo Mariano lo protege y lo renueva.',                 e:[45,68],m:{vital:60,hydra:60,stress:40,mood:55}},
+    {icon:'🌼',name:'Diente de León Energreen',    badge:'DIURÉTICO',       desc:'Diurético natural, digestivo y depurativo. Limpia riñones y apoya la función hepática.',        sec:['Cardo Mariano Energreen','Aloe Vera Energreen','Probióticos Energreen','Dtox Energreen'], vibe:'La flor más humilde del jardín tiene el poder de limpiar lo que otros dejan pasar.',           e:[44,66],m:{vital:58,hydra:65,stress:38,mood:54}},
+    {icon:'🌿',name:'Dtox Energreen',              badge:'DETOX COMPLETO',  desc:'Desintoxica hígado, riñón e intestinos. Purifica pulmones y limpia la sangre. Reset total.',   sec:['Probióticos Energreen','Cardo Mariano Energreen','Diente de León Energreen','Aloe Vera Energreen'],vibe:'Sistema digestivo en modo rescate. Dtox es el reinicio que tu cuerpo está pidiendo.', e:[48,70],m:{vital:62,hydra:65,stress:35,mood:58}}
+  ],
+  dolores:[
+    {icon:'💪',name:'Ultra Advance Gold',          badge:'ARTICULACIONES',  desc:'Para artritis, osteoartritis y ciático. Fórmula reforzada para movilidad y alivio del dolor.', sec:['MSM Energreen','Omega 5 Energreen','Uña de Gato Energreen','Citrato de Magnesio'],      vibe:'El dolor no define tu límite. Ultra Advance Gold te devuelve tu movimiento.',               e:[30,52],m:{vital:45,hydra:50,stress:58,mood:42}},
+    {icon:'🔬',name:'MSM Energreen',               badge:'ANTIINFLAMATORIO',desc:'Reduce inflamación y dolor articular. Mejora la movilidad y recuperación del tejido.',          sec:['Ultra Advance Gold','Omega 5 Energreen','Uña de Gato Energreen','Vitamina D3+K2 Energreen'],vibe:'MSM actúa donde más duele: en la inflamación. Recupera tu movimiento natural.',          e:[32,54],m:{vital:48,hydra:52,stress:55,mood:45}},
+    {icon:'🌊',name:'Omega 5 Energreen',           badge:'CORAZÓN E HÍGADO',desc:'Poderoso antiinflamatorio natural. Protege corazón, hígado y apoya las articulaciones.',       sec:['MSM Energreen','Ultra Advance Gold','Uña de Gato Energreen','Vitamina D3+K2 Energreen'],vibe:'Inflamación es la raíz de muchos males. Omega 5 ataca desde la fuente.',                    e:[35,58],m:{vital:52,hydra:55,stress:50,mood:48}},
+    {icon:'🌿',name:'Uña de Gato Energreen',       badge:'NATURAL',         desc:'Antiinflamatorio natural potente. Fortalece el sistema inmunológico y alivia dolores.',          sec:['MSM Energreen','Omega 5 Energreen','Ultra Advance Gold','Ashwa Gandha Energreen'],      vibe:'La naturaleza creó su propio analgésico. Uña de Gato — poder antiinflamatorio milenario.',   e:[36,58],m:{vital:52,hydra:52,stress:52,mood:48}}
+  ],
+  defensas:[
+    {icon:'🐄',name:'Calostro Bovino',             badge:'INMUNIDAD ÉLITE', desc:'Inmunoglobulinas naturales. El primer alimento de los mamíferos. Inmunidad de élite real.',    sec:['Hongo Reishi Energreen','Vitamina D3+K2 Energreen','Palo de Arco Energreen','Neem Energreen'],vibe:'Tu sistema inmune merece lo mejor. Calostro Bovino — la primera defensa de la naturaleza.',e:[55,78],m:{vital:72,hydra:65,stress:28,mood:68}},
+    {icon:'🍄',name:'Hongo Reishi Energreen',      badge:'ADAPTÓGENO',      desc:'Adaptógeno y modulador inmune. Antioxidante potente. El hongo de la inmortalidad.',             sec:['Calostro Bovino','Vitamina D3+K2 Energreen','Palo de Arco Energreen','CollageXfungi'],  vibe:'El hongo que los emperadores protegían. Reishi modula y fortalece tus defensas.',             e:[52,76],m:{vital:70,hydra:62,stress:30,mood:66}},
+    {icon:'☀',name:'Vitamina D3+K2 Energreen',    badge:'HUESOS+INMUNIDAD',desc:'Fortalece inmunidad, fija calcio en huesos, mejora función muscular y cardiovascular.',         sec:['Calostro Bovino','Hongo Reishi Energreen','Palo de Arco Energreen','Neem Energreen'],  vibe:'La vitamina que el sol regala y la ciudad roba. D3+K2 — defensa y estructura en uno.',        e:[50,74],m:{vital:68,hydra:62,stress:32,mood:65}},
+    {icon:'🌳',name:'Palo de Arco Energreen',      badge:'ANTIBIÓTICO NAT.',desc:'Antibiótico natural. Combate gripa, faringitis, alergias e infecciones recurrentes.',           sec:['Calostro Bovino','Neem Energreen','Vitamina D3+K2 Energreen','Hongo Reishi Energreen'], vibe:'El árbol que los guerreros usaban para curar. Palo de Arco — defensa natural de primera.',    e:[48,72],m:{vital:65,hydra:60,stress:35,mood:62}},
+    {icon:'🌿',name:'Neem Energreen',              badge:'ANTIBACTERIAL',   desc:'Antibacterial y antiviral natural. Potente regulador del sistema inmunológico.',                 sec:['Palo de Arco Energreen','Calostro Bovino','Vitamina D3+K2 Energreen','Hongo Reishi Energreen'],vibe:'Neem: la farmacia de la naturaleza en un solo árbol. Inmunidad sin artificio.',      e:[46,70],m:{vital:63,hydra:58,stress:38,mood:60}}
+  ],
+  glucosa:[
+    {icon:'🩸',name:'Glucntrol Extracto',          badge:'GLUCOSA',         desc:'Controla diabetes y niveles de glucosa desde la primera toma. Extractos naturales concentrados.',sec:['Wereke Energreen','Pata de Vaca Energreen','Semilla de Fenogreco','Zapote Blanco Energreen'],vibe:'Tu glucosa tiene una solución natural. Glucntrol actúa desde la primera toma.',          e:[38,60],m:{vital:55,hydra:60,stress:48,mood:52}},
+    {icon:'🌵',name:'Wereke Energreen',            badge:'HIPOGLUCEMIANTE',  desc:'Regula el azúcar en sangre. Efecto hipoglucemiante natural y apoyo cardiovascular integral.',  sec:['Glucntrol Extracto','Pata de Vaca Energreen','Semilla de Fenogreco','Zapote Blanco Energreen'],vibe:'La planta que el desierto creó para equilibrar. Wereke — control natural del azúcar.', e:[40,62],m:{vital:57,hydra:62,stress:45,mood:54}},
+    {icon:'🍃',name:'Pata de Vaca Energreen',      badge:'AZÚCAR+RIÑONES',  desc:'Controla azúcar en sangre, diurético natural y apoyo para infecciones urinarias.',             sec:['Glucntrol Extracto','Wereke Energreen','Semilla de Fenogreco','Zapote Blanco Energreen'],vibe:'Dos beneficios en uno: glucosa y riñones en equilibrio con Pata de Vaca.',              e:[38,60],m:{vital:54,hydra:64,stress:46,mood:52}},
+    {icon:'🌾',name:'Semilla de Fenogreco',        badge:'METABOLISMO',     desc:'Regula glucosa, mejora digestión y apoya el sistema inmune. Rico en fibra natural.',            sec:['Glucntrol Extracto','Wereke Energreen','Pata de Vaca Energreen','Probióticos Energreen'],vibe:'Pequeña semilla, gran poder metabólico. Fenogreco regula desde adentro.',                 e:[40,62],m:{vital:56,hydra:60,stress:44,mood:52}},
+    {icon:'🌳',name:'Zapote Blanco Energreen',     badge:'CARDIOVASCULAR',  desc:'Controla presión arterial y azúcar. Antiinflamatorio y apoyo cardiovascular integral.',         sec:['Glucntrol Extracto','Wereke Energreen','Omega 5 Energreen','Vitamina D3+K2 Energreen'],  vibe:'Presión y glucosa bajo control. Zapote Blanco — salud cardiovascular de raíz.',              e:[42,64],m:{vital:58,hydra:60,stress:42,mood:55}}
+  ],
+  neutral:[
+    {icon:'🌊',name:'Espirulina Energreen',        badge:'SÚPER ALIMENTO',  desc:'Proteínas completas, vitaminas y minerales esenciales. Energía sostenida y salud integral.',   sec:['Complejo B Energreen','Acai Berry Energreen','Maca Energreen','Ginseng Energreen'],     vibe:'El alimento más completo del planeta esperaba por ti. Espirulina — bienestar de raíz.',       e:[50,72],m:{vital:75,hydra:68,stress:25,mood:70}},
+    {icon:'🧠',name:'Melena de León Energreen',    badge:'FOCO MENTAL',     desc:'Potenciador cognitivo neuroprotector. Claridad mental, memoria y aprendizaje mejorados.',      sec:['Ginkgo Biloba Energreen','Ginseng Energreen','GABA Energreen','Rhodiola Energreen'],    vibe:'¡Modo alerta máxima! Tu cerebro activo merece el combustible correcto.',                     e:[55,78],m:{vital:70,hydra:45,stress:70,mood:60}},
+    {icon:'💎',name:'Colágeno de Oro Cápsulas',   badge:'PIEL & JUVENTUD', desc:'Mejora apariencia de piel, reduce arrugas, fortalece ligamentos y optimiza cabello y uñas.',   sec:['Resveratrol Energreen','Vitamina E Energreen','CollageXfungi','Colágeno Hidrolizado Frutos Rojos'],vibe:'Tu piel tiene memoria. Colágeno de Oro la nutre y rejuvenece desde adentro.',       e:[42,65],m:{vital:58,hydra:38,stress:42,mood:52}},
+    {icon:'🛡',name:'Calostro Bovino',             badge:'INMUNIDAD ÉLITE', desc:'Inmunoglobulinas naturales. Refuerza las defensas del organismo de forma completa y natural.',  sec:['Hongo Reishi Energreen','Vitamina D3+K2 Energreen','Palo de Arco Energreen','Neem Energreen'],vibe:'Explorar Energreen es una excelente decisión. Empieza con lo más completo: Calostro.',   e:[52,75],m:{vital:70,hydra:62,stress:28,mood:66}}
+  ]
+};
+
+/* Mapa emoción facial → intención del catálogo (fallback sin encuesta) */
+const EMOCION_INTENCION = {
+  happy:'energia', tired:'energia', stressed:'estres',
+  sad:'descanso',  neutral:'neutral', surprised:'neutral',
+  disgusted:'piel', fearful:'descanso'
+};
+
+/* Perfiles de bienestar */
+const SURVEY_PROFILES = {
+  energia:   {icon:'⚡', name:'Motor Humano',           sub:'Tu energía es tu superpoder'},
+  descanso:  {icon:'🌙', name:'Maestro del Descanso',   sub:'El descanso es productividad real'},
+  estres:    {icon:'🍃', name:'Alma Adaptógena',         sub:'La calma es tu fortaleza'},
+  piel:      {icon:'✨', name:'Radiancia Natural',       sub:'Tu belleza viene de adentro'},
+  digestion: {icon:'🌿', name:'Balance Interior',       sub:'Digestión sana, vida plena'},
+  dolores:   {icon:'🦴', name:'Guerrero Resiliente',    sub:'Tu movilidad es tu libertad'},
+  defensas:  {icon:'🛡', name:'Fortaleza Inmune',        sub:'Tus defensas te protegen'},
+  glucosa:   {icon:'🩸', name:'Equilibrio Metabólico',  sub:'Tu glucosa bajo control natural'},
+  neutral:   {icon:'⚖', name:'Equilibrista Nato',       sub:'Estable y listo para más'}
+};
+
+const SURVEY_STATS = {
+  energia:   'El 88% sintió más energía desde los primeros días.',
+  descanso:  'El 92% mejoró su calidad de sueño desde la primera semana.',
+  estres:    'El 89% reportó menor estrés en 2 semanas con adaptógenos naturales.',
+  piel:      'El 89% notó cambios visibles en piel y cabello en 3 semanas.',
+  digestion: 'El 91% mejoró su digestión en menos de 2 semanas.',
+  dolores:   'El 84% redujo molestias articulares en 10 días.',
+  defensas:  'El 87% fortaleció sus defensas en menos de 1 mes.',
+  glucosa:   'El 86% logró mejor control de glucosa de forma natural.',
+  neutral:   'El 88% optimizó su bienestar general en menos de 3 semanas.'
+};
+
+function neutralPoolByHour(){
+  const h=new Date().getHours();
+  if(h>=7&&h<10)  return ['Complejo B Energreen','Espirulina Energreen','Ginseng Energreen'];
+  if(h>=10&&h<14) return ['Melena de León Energreen','Dtox Energreen','Rhodiola Energreen'];
+  if(h>=14&&h<17) return ['Probióticos Energreen','Colágeno de Oro Cápsulas','Cardo Mariano Energreen'];
+  return ['Melatonina Energreen','Pasiflora Energreen','GABA Energreen'];
+}
+
+/* ── ANTI-REPETICIÓN con localStorage — max 8 por día ── */
+const _AR_KEY='eg_shown_v2', _AR_DAY='eg_shown_day';
+function arLoad(){
+  const today=new Date().toDateString();
+  if(localStorage.getItem(_AR_DAY)!==today){localStorage.setItem(_AR_DAY,today);localStorage.setItem(_AR_KEY,'[]');}
+  try{return JSON.parse(localStorage.getItem(_AR_KEY)||'[]');}catch{return[];}
+}
+function arSave(a){localStorage.setItem(_AR_KEY,JSON.stringify(a.slice(-8)));}
+function arCheck(name){return arLoad().includes(name);}
+function arMark(name){const a=arLoad();a.push(name);arSave(a);}
+
+/* ── pickProduct — núcleo del sistema ── */
+function pickProduct(emotionType, sv){
+  /* 1. surveyData viene como parámetro directo — no depende de variable global */
+  let intencion=(sv&&sv.intencion)?sv.intencion:(EMOCION_INTENCION[emotionType]||'neutral');
+
+  /* 2. Pool base del catálogo */
+  let pool=(CATALOG[intencion]||CATALOG.neutral).slice();
+
+  /* 3. Ajustes género */
+  const g=sv&&sv.genero, e=sv&&sv.etapa;
+  if(g==='mujer'&&['estres','descanso','piel'].includes(intencion))
+    pool.sort((a,b)=>(['Pasiflora Energreen','Colágeno de Oro Cápsulas','Colágeno Hidrolizado Frutos Rojos','CollageXfungi'].includes(b.name)?1:0)-0);
+  if(g==='hombre'&&intencion==='energia')
+    pool.sort((a,b)=>(['Maca Energreen','Ginseng Energreen','L-Carnitina Energreen'].includes(b.name)?1:0)-0);
+
+  /* 4. Ajustes etapa */
+  if(e==='joven')  pool.sort((a,b)=>(['L-Carnitina Energreen','Espirulina Energreen','Maca Energreen'].includes(b.name)?1:0)-0);
+  if(e==='maduro') pool.sort((a,b)=>(['Colágeno de Oro Cápsulas','Vitamina D3+K2 Energreen','Rhodiola Energreen'].includes(b.name)?1:0)-0);
+  if(e==='senior') pool.sort((a,b)=>(['Ultra Advance Gold','Calostro Bovino','MSM Energreen','Vitamina D3+K2 Energreen'].includes(b.name)?1:0)-0);
+
+  /* 5. Anti-repetición */
+  let chosen=pool.find(p=>!arCheck(p.name));
+  if(!chosen){localStorage.setItem(_AR_KEY,'[]');chosen=pool[0];}
+
+  /* 6. Neutral por hora */
+  if(intencion==='neutral'){
+    const hp=neutralPoolByHour();
+    const hc=pool.find(p=>hp.includes(p.name)&&!arCheck(p.name));
+    if(hc)chosen=hc;
+  }
+  arMark(chosen.name);
+  chosen._intencion = intencion; // para mensaje WhatsApp
+
+  /* 7. Perfil dinámico */
+  const profile=Object.assign({},SURVEY_PROFILES[intencion]||SURVEY_PROFILES.neutral);
+  const stat=SURVEY_STATS[intencion]||SURVEY_STATS.neutral;
+  if(e==='joven')  {profile.icon='🚀';profile.name='Máxima Potencia';}
+  if(e==='senior') {profile.icon='👑';profile.name='Sabiduría Vital';}
+  if(g==='mujer'&&intencion==='piel'){profile.icon='🌸';profile.name='Esencia Femenina';}
+  if(g==='hombre'&&intencion==='energia'){profile.icon='💪';profile.name='Vitalidad Masculina';}
+
+  return{prod:chosen,intencion,profile,stat};
+}
+
+/* ── Compatibilidad: alias P y PROFILES para que showResult/buildReceta no se rompan ── */
+const P={};
+Object.values(CATALOG).flat().forEach(p=>{P[p.name]=p;});
+['happy','tired','stressed','sad','neutral','surprised','disgusted','fearful'].forEach(k=>{
+  P[k]=(CATALOG[EMOCION_INTENCION[k]]||CATALOG.neutral)[0];
+});
+const PROFILES=SURVEY_PROFILES;
+const STATS=SURVEY_STATS;
+
+/* ══════════════════════════════════════
+   APP STATE
+══════════════════════════════════════ */
+let video,canvas,ctx2d,spCanvas,spCtx;
+let modelsLoaded=false,curExpr=null,isScanning=false,detCnt=0,fpsT=Date.now(),frames=0;
+let currentMode='quick';
+let currentType=null,currentProd=null,currentEv=0;
+let qStep=0,qAnswers=[],deepSecondary=[];
+
+const exprHist=[];
+function recordExpr(ex){exprHist.push({...ex});if(exprHist.length>5)exprHist.shift()}
+
+function avgExpr(){
+  if(!exprHist.length)return null;
+  const keys=['happy','sad','angry','surprised','disgusted','fearful','neutral'];
+  const avg={};keys.forEach(k=>{avg[k]=exprHist.reduce((s,e)=>s+(e[k]||0),0)/exprHist.length});
+  return avg;
+}
+function classify(ex){
+  const e=exprHist.length>=2?avgExpr():ex;
+  const keys=['happy','sad','angry','surprised','disgusted','fearful','neutral'];
+  const dominant=keys.reduce((a,b)=>e[a]>e[b]?a:b);
+  const val=e[dominant];
+  if(dominant==='happy'    &&val>.12)return'happy';
+  if(dominant==='sad'      &&val>.10)return'sad';
+  if(dominant==='angry'    &&val>.10)return'stressed';
+  if(dominant==='surprised'&&val>.10)return'surprised';
+  if(dominant==='fearful'  &&val>.08)return'fearful';
+  if(dominant==='disgusted'&&val>.08)return'disgusted';
+  const h=new Date().getHours();
+  if(h<10||h>=20)return'tired';
+  if(h>=10&&h<14)return'stressed';
+  return'neutral';
+}
+
+let lastType=null;
+function pickType(){
+  // Devuelve clave de emoción facial para pickProduct
+  if(modelsLoaded&&exprHist.length>=2){
+    const f=classify(exprHist[exprHist.length-1]);
+    if(f)return f;
+  }
+  const emociones=['happy','tired','stressed','sad','neutral','surprised','disgusted','fearful'];
+  const avail=emociones.filter(t=>t!==lastType);
+  return avail[Math.floor(Math.random()*avail.length)];
+}
+
+/* ── MODE SELECTOR (simplificado — TEST PROFUNDO eliminado) ── */
+function setMode(m){
+  currentMode='quick';
+  document.getElementById('scanBtn').textContent='🌿 INICIAR ANÁLISIS DE BIENESTAR';
+}
+setMode('quick');
+
+/* ══════════════ ENCUESTA OVERLAY — LÓGICA ══════════════ */
+/* surveyData se pasa directo por closure — no depende de variable global */
+let _svCb=null;
+
+function svOpen(onComplete){
+  _svCb=onComplete;
+  _sv.intencion=null;_sv.genero=null;_sv.etapa=null;
+  [1,2,3].forEach(s=>{
+    const step=document.getElementById('svS'+s);
+    const pip =document.getElementById('svp'+s);
+    step.classList.remove('sv-on');
+    pip.classList.remove('sv-done','sv-cur');
+    step.querySelectorAll('.sv-btn').forEach(b=>b.classList.remove('sv-sel'));
+  });
+  document.getElementById('svS1').classList.add('sv-on');
+  document.getElementById('svp1').classList.add('sv-cur');
+  document.getElementById('svLbl').textContent='PASO 1 DE 3';
+  document.getElementById('svOverlay').classList.add('sv-on');
+}
+
+function svClose(){document.getElementById('svOverlay').classList.remove('sv-on');}
+
+// sv: acumula respuestas localmente en closure — surveyData nunca se pierde
+const _sv={intencion:null,genero:null,etapa:null};
+function svPick(step,btn,value){
+  btn.closest('.sv-step').querySelectorAll('.sv-btn').forEach(b=>b.classList.remove('sv-sel'));
+  btn.classList.add('sv-sel');
+  if(step===1)_sv.intencion=value;
+  if(step===2)_sv.genero=value;
+  if(step===3)_sv.etapa=value;
+  setTimeout(()=>{
+    if(step<3){
+      document.getElementById('svS'+step).classList.remove('sv-on');
+      document.getElementById('svp'+step).classList.remove('sv-cur');
+      document.getElementById('svp'+step).classList.add('sv-done');
+      document.getElementById('svS'+(step+1)).classList.add('sv-on');
+      document.getElementById('svp'+(step+1)).classList.add('sv-cur');
+      document.getElementById('svLbl').textContent='PASO '+(step+1)+' DE 3';
+    }else{
+      document.getElementById('svp3').classList.remove('sv-cur');
+      document.getElementById('svp3').classList.add('sv-done');
+      // Guardar en localStorage como backup antes de cerrar
+      try{localStorage.setItem('eg_sv',JSON.stringify({..._sv}));}catch{}
+      svClose();
+      if(_svCb)_svCb({..._sv}); // pasar copia inmutable
+    }
+  },280);
+}
+
+/* ── UI STATE ── */
+function show(which){
+  ['rIdle','rLoading','rQuestions','rResult'].forEach(id=>{
+    document.getElementById(id).style.display='none';
+  });
+  const map={idle:'rIdle',loading:'rLoading',questions:'rQuestions',result:'rResult'};
+  if(map[which])document.getElementById(map[which]).style.display='flex';
+}
+show('idle');
+
+/* ── INIT ── */
+function withTimeout(p,ms){return Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error('t')),ms))])}
+
+async function init(){
+  video=document.getElementById('videoEl');
+  canvas=document.getElementById('canvasEl');
+  ctx2d=canvas.getContext('2d');
+  spCanvas=document.getElementById('scanPointsCanvas');
+  spCtx=spCanvas.getContext('2d');
+  const st=document.getElementById('mstatus');
+  const btn=document.getElementById('scanBtn');
+
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:{width:640,height:480},audio:false});
+    video.srcObject=stream;
+    video.onloadedmetadata=()=>{
+      canvas.width=video.videoWidth||640;
+      canvas.height=video.videoHeight||480;
+      spCanvas.width=canvas.width;
+      spCanvas.height=canvas.height;
+    };
+  }catch{st.textContent='⚠ Sin cámara — modo demo activo'}
+
+  btn.disabled=false;
+  st.textContent='⟳ Cargando IA en segundo plano...';
+
+  const C1='https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
+  const C2='https://justadudewhohacks.github.io/face-api.js/models';
+  const loadM=async url=>withTimeout(Promise.all([
+    faceapi.nets.tinyFaceDetector.loadFromUri(url),
+    faceapi.nets.faceExpressionNet.loadFromUri(url)
+  ]),12000);
+
+  try{await loadM(C1);modelsLoaded=true}
+  catch{try{await loadM(C2);modelsLoaded=true}catch{}}
+
+  if(modelsLoaded){
+    st.textContent='✓ IA lista — Energreen activo';
+    setTimeout(()=>{
+      st.textContent='';
+      drawRadar([.3,.3,.3,.3,.3,.3],['VITA','HIDRA','MOOD','CALM','FOCO','VIBE']);
+    },2200);
+    if(video.srcObject)detectLoop();
+  }else{
+    st.textContent='⚡ Modo demo — presiona para analizar';
+  }
+}
+
+/* ── DETECTION LOOP ── */
+async function detectLoop(){
+  let nf=0;
+  const loop=async()=>{
+    frames++;
+    if(Date.now()-fpsT>1000){document.getElementById('fpsTag').textContent='FPS:'+frames;frames=0;fpsT=Date.now()}
+    if(!video.paused&&modelsLoaded){
+      try{
+        const res=await faceapi
+          .detectSingleFace(video,new faceapi.TinyFaceDetectorOptions({inputSize:224,scoreThreshold:.4}))
+          .withFaceExpressions();
+        ctx2d.clearRect(0,0,canvas.width,canvas.height);
+        if(res){
+          nf=0;
+          document.getElementById('noFace').classList.remove('show');
+          document.getElementById('faceTag').textContent='ROSTRO: DETECTADO ✓';
+          document.getElementById('faceTag').style.color='var(--egl)';
+          const{x,y,width,height}=res.detection.box;
+          const sx=canvas.width/video.videoWidth,sy=canvas.height/video.videoHeight;
+          const bx=x*sx,by=y*sy,bw=width*sx,bh=height*sy,conf=res.detection.score;
+          document.getElementById('confTag').textContent='CONF:'+Math.round(conf*100)+'%';
+          ctx2d.strokeStyle='rgba(74,184,92,.85)';ctx2d.lineWidth=2;
+          ctx2d.shadowColor='rgba(74,184,92,1)';ctx2d.shadowBlur=10;
+          const cs=14;
+          [[bx,by],[bx+bw,by],[bx,by+bh],[bx+bw,by+bh]].forEach(([px,py],i)=>{
+            const dx=i%2===0?1:-1,dy=i<2?1:-1;
+            ctx2d.beginPath();ctx2d.moveTo(px,py+dy*cs);ctx2d.lineTo(px,py);ctx2d.lineTo(px+dx*cs,py);ctx2d.stroke();
+          });
+          ctx2d.shadowBlur=0;
+          ctx2d.fillStyle='rgba(74,184,92,.07)';ctx2d.fillRect(bx,by+bh+3,bw*conf,4);
+          ctx2d.fillStyle='rgba(74,184,92,.45)';ctx2d.fillRect(bx,by+bh+3,bw*conf,2);
+          curExpr=classify(res.expressions);
+          recordExpr(res.expressions);
+          const pct=v=>Math.round(v*100)+'%';
+          const e=res.expressions;
+          document.getElementById('e-happy').textContent=pct(e.happy);
+          document.getElementById('e-sad').textContent=pct(e.sad);
+          document.getElementById('e-angry').textContent=pct(e.angry);
+          document.getElementById('e-surprised').textContent=pct(e.surprised);
+          document.getElementById('e-fearful').textContent=pct(e.fearful);
+          document.getElementById('e-neutral').textContent=pct(e.neutral);
+          drawRadar([Math.min(1-e.sad*.8,1),.6,e.happy,Math.max(1-e.angry-e.fearful,0),1-e.surprised*.5,1-e.disgusted],['VITA','HIDRA','MOOD','CALM','FOCO','VIBE']);
+        }else{
+          if(++nf>25)document.getElementById('noFace').classList.add('show');
+          document.getElementById('faceTag').textContent='ROSTRO: BUSCANDO...';
+          document.getElementById('faceTag').style.color='var(--a)';
+        }
+      }catch{}
+    }
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+}
+
+/* ── SCAN POINTS ANIMATION (efecto "IA escaneando") ── */
+function drawScanPoints(faceBox){
+  if(!spCtx||!faceBox)return;
+  spCanvas.style.opacity='1';
+  spCtx.clearRect(0,0,spCanvas.width,spCanvas.height);
+  const pts=[
+    [.5,.15],[.35,.25],[.65,.25],[.3,.4],[.7,.4],
+    [.5,.45],[.4,.6],[.6,.6],[.5,.75],[.5,.9]
+  ];
+  const{bx,by,bw,bh}=faceBox;
+  pts.forEach(([rx,ry],i)=>{
+    setTimeout(()=>{
+      const px=bx+bw*rx,py=by+bh*ry;
+      spCtx.beginPath();spCtx.arc(px,py,3,0,Math.PI*2);
+      spCtx.fillStyle='rgba(74,184,92,.9)';spCtx.fill();
+      spCtx.beginPath();spCtx.arc(px,py,7,0,Math.PI*2);
+      spCtx.strokeStyle='rgba(74,184,92,.4)';spCtx.lineWidth=1;spCtx.stroke();
+      spCtx.beginPath();spCtx.arc(px,py,12,0,Math.PI*2);
+      spCtx.strokeStyle='rgba(74,184,92,.15)';spCtx.stroke();
+    },i*120);
+  });
+  setTimeout(()=>{spCanvas.style.opacity='0';spCtx.clearRect(0,0,spCanvas.width,spCanvas.height)},2000);
+}
+
+/* ── DEEP TEST — QUESTIONS ── */
+function startDeepTest(type){
+  currentType=type;
+  qStep=0;
+  qAnswers=[];
+  deepSecondary=[];
+  document.getElementById('qProfileName').textContent=(PROFILES[type]||PROFILES.neutral).icon+' '+(PROFILES[type]||PROFILES.neutral).name;
+  updateQuestionDots();
+  renderQuestion();
+  show('questions');
+}
+
+function updateQuestionDots(){
+  [1,2,3].forEach(i=>{
+    const d=document.getElementById('qd'+i);
+    d.className='q-dot'+(i-1<qStep?' done':i-1===qStep?' current':'');
+  });
+  document.getElementById('qNum').textContent=qStep+1;
+}
+
+function renderQuestion(){
+  const qs=QUESTIONS[currentType]||QUESTIONS.neutral;
+  if(qStep>=qs.length){finishDeepTest();return;}
+  const q=qs[qStep];
+  document.getElementById('qText').textContent=q.text;
+  const optsEl=document.getElementById('qOptions');
+  optsEl.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='q-btn';btn.textContent=opt;
+    btn.onclick=()=>answerQuestion(i,q.scores[i]);
+    optsEl.appendChild(btn);
+  });
+}
+
+function answerQuestion(idx,product){
+  qAnswers.push(idx);
+  deepSecondary.push(product);
+  // Visual feedback
+  document.querySelectorAll('.q-btn').forEach((b,i)=>{if(i===idx)b.classList.add('selected')});
+  setTimeout(()=>{
+    qStep++;
+    updateQuestionDots();
+    if(qStep<3)renderQuestion();
+    else finishDeepTest();
+  },400);
+}
+
+function finishDeepTest(){
+  const base=P[currentType]||(CATALOG[EMOCION_INTENCION[currentType]]||CATALOG.neutral)[0];
+  const allSec=[...deepSecondary,...base.sec].filter((v,i,a)=>a.indexOf(v)===i).slice(0,4);
+  currentProd={...base,sec:allSec};
+  const profile=SURVEY_PROFILES[EMOCION_INTENCION[currentType]||'neutral']||SURVEY_PROFILES.neutral;
+  const stat=SURVEY_STATS[EMOCION_INTENCION[currentType]||'neutral']||'';
+  showResult(EMOCION_INTENCION[currentType]||'neutral',currentProd,profile,stat);
+}
+
+/* ── SHOW RESULT ── */
+function showResult(type,prod,profile,stat){
+  if(!profile) profile=SURVEY_PROFILES[type]||Object.values(SURVEY_PROFILES)[0];
+  if(!stat)    stat=SURVEY_STATS[type]||'';
+  const ev=Math.round(prod.e[0]+Math.random()*(prod.e[1]-prod.e[0]));
+  currentEv=ev;currentProd=prod;currentType=type;
+
+  document.getElementById('energyNum').textContent=ev;
+  document.getElementById('vibeMsg').textContent=prod.vibe;
+  document.getElementById('recIcon').textContent=prod.icon;
+  document.getElementById('recName').textContent=prod.name;
+  document.getElementById('recDesc').textContent=prod.desc;
+  document.getElementById('recBadge').textContent=prod.badge;
+  document.getElementById('resultProfileIcon').textContent=profile.icon;
+  document.getElementById('resultProfileName').textContent=profile.name;
+  document.getElementById('resultProfileSub').textContent=profile.sub;
+  document.getElementById('statQuote').textContent='📊 '+stat;
+
+  setTimeout(()=>{const b=document.getElementById('energyBar');if(b)b.style.width=ev+'%'},200);
+
+  const sc=document.getElementById('secChips');sc.innerHTML='';
+  prod.sec.forEach(s=>{const d=document.createElement('div');d.className='chip';d.textContent='+ '+s;sc.appendChild(d)});
+
+  ['vital','hydra','stress','mood'].forEach(k=>{
+    const mv=document.getElementById('m-'+k);const mb=document.getElementById('b-'+k);
+    if(mv)mv.textContent=prod.m[k]+'%';if(mb)mb.style.width=prod.m[k]+'%';
+  });
+
+  generateQR(prod,ev,profile);
+  window._recetaHTML=buildRecetaHTML(prod,ev,stat,profile);
+  incCount();
+  show('result');
+}
+
+/* ── GENERATE QR — WhatsApp Link ── */
+function generateQR(prod,ev,profile){
+  const qrEl=document.getElementById('qrCode');
+  qrEl.innerHTML='';
+
+  if(!profile) profile={name:'Energreen',icon:'🌿'};
+
+  // MENSAJE CORTO — cuanto más corto, más fácil de escanear el QR
+  const msg=encodeURIComponent('Hola Energreen! Me recomendaron: '+prod.name+'. Quiero más info.');
+  const waLink='https://wa.me/'+WA_NUMBER+'?text='+msg;
+
+  // Guardar link completo para el botón de texto también
+  window._waLink=waLink;
+
+  setTimeout(()=>{
+    try{
+      qrEl.innerHTML='';
+      new QRCode(qrEl,{
+        text:waLink,
+        width:148,height:148,
+        colorDark:'#000000',
+        colorLight:'#ffffff',
+        correctLevel:QRCode.CorrectLevel.H
+      });
+    }catch(e){
+      console.warn('QR error:',e);
+    }
+  },400);
+}
+
+/* ── RECETA HTML ── */
+function abrirReceta(){
+  if(!window._recetaHTML)return;
+  const blob=new Blob([window._recetaHTML],{type:'text/html;charset=utf-8'});
+  window.open(URL.createObjectURL(blob),'_blank');
+}
+
+function buildRecetaHTML(prod,ev,stat,profile){
+  const fecha=new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});
+  const hora=new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+  const chips=prod.sec.map(s=>'<span style="display:inline-block;margin:3px 4px;padding:4px 12px;background:#f0faf2;border:1px solid #b0d8b8;border-radius:20px;font-size:.72rem;color:#2d8a3e">+ '+s+'</span>').join('');
+  const waMsg=encodeURIComponent('🌿 Hola! Acabo de usar el Espejo del Bienestar de Energreen. Mi perfil es *'+profile.name+'* y me recomendaron *'+prod.name+'*. ¿Me pueden ayudar?');
+  const waLink='https://wa.me/'+WA_NUMBER+'?text='+waMsg;
+  return`<!DOCTYPE html><html lang="es"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Receta Energreen · ${profile.name}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#f4f9f5;font-family:system-ui,sans-serif;color:#1a3a1f;padding:20px 16px 48px;max-width:420px;margin:0 auto}
+.hdr{text-align:center;border-bottom:2px solid #2d8a3e;padding-bottom:12px;margin-bottom:14px}
+.logo{font-size:1.4rem;font-weight:900;color:#2d8a3e}
+.sub{font-size:.58rem;letter-spacing:.15em;color:#5a9a6a;text-transform:uppercase;margin-top:2px}
+.disc{background:#fff8e8;border:1px solid #e8c870;border-radius:10px;padding:11px 14px;font-size:.72rem;color:#7a6020;line-height:1.55;margin-bottom:14px;text-align:center}
+.disc b{color:#5a4010;display:block;margin-bottom:3px;font-size:.78rem}
+.badge-ia{display:inline-block;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:20px;padding:2px 10px;font-size:.58rem;color:#2e7d32;margin-top:5px}
+.profile-card{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#e8f5e9,#f3e5f5);border:1px solid #a5d6a7;border-radius:12px;padding:14px;margin-bottom:14px}
+.p-icon{font-size:2.5rem}
+.p-name{font-size:1.1rem;font-weight:900;color:#1b5e20}
+.p-sub{font-size:.75rem;color:#5a9a6a;margin-top:2px}
+.ev-box{text-align:center;margin-bottom:4px}
+.ev-num{font-size:2.8rem;font-weight:900;color:#1b5e20}
+.ev-lbl{font-size:.58rem;color:#388e3c;letter-spacing:.12em;text-transform:uppercase}
+.stat{font-size:.7rem;color:#5a9a6a;font-style:italic;margin-bottom:14px;text-align:center;padding:8px;background:#f0faf2;border-radius:8px}
+.vbox{background:#fff;border-left:4px solid #2d8a3e;border-radius:0 8px 8px 0;padding:11px 14px;font-size:.85rem;color:#333;line-height:1.55;font-style:italic;margin-bottom:14px}
+.slbl{font-size:.56rem;font-weight:bold;letter-spacing:.18em;text-transform:uppercase;color:#2d8a3e;margin-bottom:7px}
+.pcard{border:2px solid #2d8a3e;border-radius:10px;padding:13px 14px;background:#fff;margin-bottom:12px}
+.phead{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.pico{font-size:2rem}
+.pname{font-size:.98rem;font-weight:bold;color:#1b5e20}
+.pbadge{display:inline-block;margin-top:4px;font-size:.56rem;padding:2px 8px;background:#e8f5e9;color:#2d8a3e;border:1px solid #a5d6a7;border-radius:20px}
+.pdesc{font-size:.8rem;color:#555;line-height:1.5}
+.wa-btn{display:block;text-align:center;background:#25d366;color:#fff;font-weight:700;padding:14px;border-radius:12px;text-decoration:none;font-size:.95rem;margin:14px 0;letter-spacing:.03em}
+.footer{margin-top:18px;padding-top:12px;border-top:1px dashed #ccc;text-align:center}
+.fdate{font-size:.58rem;color:#999;margin-bottom:6px}
+.legal{font-size:.58rem;color:#bbb;line-height:1.55}
+</style></head><body>
+<div class="hdr"><div class="logo">🌿 Energreen</div><div class="sub">Espejo del Bienestar · Receta de Orientación</div></div>
+<div class="disc"><b>⚠️ Esto NO es una prescripción médica</b>Generado por <strong>inteligencia artificial</strong> con fines <strong>recreativos e informativos</strong>. Juego tecnológico de orientación. No sustituye consulta profesional.<br><span class="badge-ia">🤖 IA Orientativa · Energreen</span></div>
+<div class="profile-card"><div class="p-icon">${profile.icon}</div><div><div class="p-name">${profile.name}</div><div class="p-sub">${profile.sub}</div></div></div>
+<div class="ev-box"><div class="ev-num">${ev}%</div><div class="ev-lbl">Batería humana detectada</div></div>
+<div class="stat">📊 ${stat}</div>
+<div class="slbl">📋 Tu mensaje del espejo</div>
+<div class="vbox">"${prod.vibe}"</div>
+<div class="slbl">🌱 Sugerencia Energreen</div>
+<div class="pcard"><div class="phead"><div class="pico">${prod.icon}</div><div><div class="pname">${prod.name}</div><div class="pbadge">${prod.badge}</div></div></div><div class="pdesc">${prod.desc}</div></div>
+<div class="slbl">También pregunta por:</div>
+<div style="margin-bottom:14px">${chips}</div>
+<a href="${waLink}" class="wa-btn">💬 Contactar a mi asesor Energreen por WhatsApp</a>
+<div class="footer"><div class="fdate">Generado el ${fecha} a las ${hora}</div><div class="legal">Esta receta es un juego tecnológico de orientación.<br>Energreen no se hace responsable de decisiones de salud basadas en este análisis.<br>Siempre consulta a nuestro equipo especializado.</div></div>
+</body></html>`;
+}
+
+/* ── SCAN BUTTON — flujo: encuesta → análisis → resultado ── */
+document.getElementById('scanBtn').addEventListener('click',()=>{
+  if(isScanning)return;
+  // Resetear _sv antes de cada uso
+  _sv.intencion=null;_sv.genero=null;_sv.etapa=null;
+
+  svOpen(async(sv)=>{
+    // sv llega como copia del objeto con las 3 respuestas garantizadas
+    isScanning=true;
+    document.getElementById('scanBtn').disabled=true;
+    show('loading');
+
+    const msgs=['ESCANEANDO PATRONES...','ANALIZANDO EXPRESIONES...','CONSULTANDO CATÁLOGO ENERGREEN...','PREPARANDO RECOMENDACIÓN...'];
+    let mi=0;
+    const iv=setInterval(()=>{const el=document.getElementById('loadTxt');if(el)el.textContent=msgs[mi++%msgs.length];},450);
+
+    if(modelsLoaded&&exprHist.length>0&&canvas.width>0){
+      drawScanPoints({bx:canvas.width*.2,by:canvas.height*.1,bw:canvas.width*.6,bh:canvas.height*.75});
+    }
+
+    try{
+      await new Promise(r=>setTimeout(r,1500));
+      const emotionType=pickType();
+      lastType=emotionType;
+
+      // ← FIX CENTRAL: pickProduct recibe sv directamente (nunca null)
+      const {prod, intencion, profile, stat}=pickProduct(emotionType, sv);
+
+      clearInterval(iv);
+      document.getElementById('scanBtn').disabled=false;
+      isScanning=false;
+
+      // Pasar prod y profile a showResult con tipo de intención como key
+      showResult(intencion, prod, profile, stat);
+    }catch(err){
+      console.error(err);
+      clearInterval(iv);
+      document.getElementById('scanBtn').disabled=false;
+      isScanning=false;
+      show('idle');
+    }
+  });
+});
+
+document.getElementById('rescanBtn').addEventListener('click',()=>{
+  qStep=0;qAnswers=[];deepSecondary=[];
+  _sv.intencion=null;_sv.genero=null;_sv.etapa=null;
+  const qrEl=document.getElementById('qrCode');
+  if(qrEl)qrEl.innerHTML='';
+  show('idle');
+});
+
+document.addEventListener('mousemove',e=>{
+  const el=document.getElementById('coordTag');
+  if(el)el.textContent='X:'+String(e.clientX).padStart(4,'0')+' Y:'+String(e.clientY).padStart(4,'0');
+});
+
+window.addEventListener('DOMContentLoaded',()=>{
+  // Solo lanza init si la licencia ya está activa
+  const LIC_KEY='eg_lic_v1', LIC_MON='eg_lic_mon';
+  const mesActual=new Date().getFullYear()+'-'+(new Date().getMonth()+1);
+  try{
+    if(localStorage.getItem(LIC_KEY)==='ok' && localStorage.getItem(LIC_MON)===mesActual){
+      init();
+    } else {
+      document.getElementById('licInput')&&document.getElementById('licInput').focus();
+    }
+  }catch{init();}
+});
+</script>
+</body>
+</html>
